@@ -1,6 +1,6 @@
-# 🚀 Releasing Laravel Exile
+# 🚀 Releasing Laravel Masquerade
 
-Laravel Exile follows Semantic Versioning.
+Laravel Masquerade follows Semantic Versioning.
 
 ## 🧭 Prepare
 
@@ -32,27 +32,27 @@ Smoke-test supported Laravel versions in clean applications.
 
 ```bash
 git add .
-git commit -m "Prepare v1.1.0 release"
+git commit -m "Prepare v1.0.0 release"
 git push
 ```
 
 ## 🏷️ Tag
 
 ```bash
-git tag -a v1.1.0 -m "Laravel Exile v1.1.0"
-git push origin v1.1.0
+git tag -a v1.0.0 -m "Laravel Masquerade v1.0.0"
+git push origin v1.0.0
 ```
 
 Never move a published stable tag. Create a new version when a released tag needs correction.
 
 ## 📣 GitHub Release
 
-Create a release from `v1.1.0` and use `RELEASE_NOTES_v1.1.0.md`.
+Create a release from `v1.0.0` and use `RELEASE_NOTES_v1.0.0.md`.
 
 Suggested title:
 
 ```text
-v1.1.0 — Enforcement Hardening and Custom Notifications
+v1.0.0 — Initial Release
 ```
 
 ## 📦 Package Registry
@@ -60,16 +60,16 @@ v1.1.0 — Enforcement Hardening and Custom Notifications
 Confirm the package registry receives the tag and resolves:
 
 ```bash
-composer show eloquent-works/exile --all
+composer show eloquent-works/masquerade --all
 ```
 
 ## 🧪 Post-Release Smoke Test
 
 ```bash
-composer create-project laravel/laravel exile-smoke
-cd exile-smoke
-composer require eloquent-works/exile:^1.1
-php artisan exile:install --migrate --views
+composer create-project laravel/laravel masquerade-smoke
+cd masquerade-smoke
+composer require eloquent-works/masquerade:^1.0
+php artisan masquerade:install --migrate --views
 ```
 
 Verify middleware, one enforcement action, one queued notification, one evidence checksum, and one escalation.

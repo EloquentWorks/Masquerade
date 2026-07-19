@@ -1,14 +1,16 @@
 {
-    "name": "eloquent-works/exile",
-    "description": "Comprehensive account, IP, network, device, strike, restriction, appeal, and moderation enforcement tools for Laravel applications.",
+    "name": "eloquent-works/masquerade",
+    "description": "A feature-rich Laravel impersonation package with secure session handling, audit logs, middleware, events, and Blade helpers.",
     "type": "library",
     "license": "MIT",
     "keywords": [
         "laravel",
-        "bans",
-        "moderation",
-        "security",
-        "ip-ban"
+        "impersonation",
+        "impersonate",
+        "masquerade",
+        "admin",
+        "audit",
+        "eloquent-works"
     ],
     "authors": [
         {
@@ -17,16 +19,11 @@
     ],
     "require": {
         "php": "^8.2",
-        "illuminate/bus": "^11.15|^12.0|^13.0",
-        "illuminate/console": "^11.15|^12.0|^13.0",
+        "illuminate/auth": "^11.15|^12.0|^13.0",
         "illuminate/contracts": "^11.15|^12.0|^13.0",
         "illuminate/database": "^11.15|^12.0|^13.0",
         "illuminate/encryption": "^11.15|^12.0|^13.0",
-        "illuminate/events": "^11.15|^12.0|^13.0",
-        "illuminate/filesystem": "^11.15|^12.0|^13.0",
         "illuminate/http": "^11.15|^12.0|^13.0",
-        "illuminate/notifications": "^11.15|^12.0|^13.0",
-        "illuminate/queue": "^11.15|^12.0|^13.0",
         "illuminate/routing": "^11.15|^12.0|^13.0",
         "illuminate/support": "^11.15|^12.0|^13.0"
     },
@@ -38,21 +35,24 @@
     },
     "autoload": {
         "psr-4": {
-            "EloquentWorks\\Exile\\": "src/"
-        }
+            "EloquentWorks\\Masquerade\\": "src/"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/"
+            "EloquentWorks\\Masquerade\\Tests\\": "tests/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "EloquentWorks\\Exile\\ExileServiceProvider"
+                "EloquentWorks\\Masquerade\\MasqueradeServiceProvider"
             ],
             "aliases": {
-                "Exile": "EloquentWorks\\Exile\\Facades\\Exile"
+                "Masquerade": "EloquentWorks\\Masquerade\\Facades\\Masquerade"
             }
         }
     },

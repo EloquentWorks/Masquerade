@@ -1,6 +1,6 @@
-# 🤝 Contributing to Laravel Exile
+# 🤝 Contributing to Laravel Masquerade
 
-Thank you for considering a contribution to Laravel Exile! Contributions of all sizes are appreciated, including bug reports, documentation improvements, additional tests, security hardening, and carefully designed features.
+Thank you for considering a contribution to Laravel Masquerade! Contributions of all sizes are appreciated, including bug reports, documentation improvements, additional tests, security hardening, and carefully designed features.
 
 Please read the [Code of Conduct](CODE_OF_CONDUCT.md) before participating.
 
@@ -34,7 +34,7 @@ Before opening a bug report:
 
 Include:
 
-- Laravel Exile version
+- Laravel Masquerade version
 - Laravel version
 - PHP version
 - Database driver and version
@@ -67,8 +67,8 @@ Large features should be discussed in an issue before implementation.
 Fork and clone the repository:
 
 ```bash
-git clone https://github.com/<your-username>/Exile.git
-cd Exile
+git clone https://github.com/<your-username>/Masquerade.git
+cd Masquerade
 ```
 
 Install dependencies:
@@ -169,7 +169,7 @@ Avoid adding ignore rules unless the reported problem cannot be represented corr
 
 ## 🎨 Code Style
 
-Laravel Exile follows Laravel-style conventions and uses Laravel Pint.
+Laravel Masquerade follows Laravel-style conventions and uses Laravel Pint.
 
 Format the code:
 
@@ -289,4 +289,4 @@ A pull request may be declined when the feature is too application-specific, dup
 
 By contributing, you agree that your contribution will be licensed under the repository's [MIT License](LICENSE).
 
-Thank you for helping make Laravel Exile safer, clearer, and more useful. 🛡️
+Thank you for helping make Laravel Masquerade safer, clearer, and more useful. 🛡️

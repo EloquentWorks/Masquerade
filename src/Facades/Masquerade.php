@@ -9,10 +9,10 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @method static void start(Authenticatable $target, ?Authenticatable $impersonator = null, ?string $guard = null, ?string $reason = null, array $metadata = [])
+ * @method static void start(Authenticatable $target, ?Authenticatable $impersonator = null, ?string $guard = null, ?string $reason = null, array<string, mixed> $metadata = [])
  * @method static void stop(?string $guard = null, bool $expired = false)
  * @method static CarbonImmutable extend(int $minutes, ?string $reason = null)
- * @method static void updateMetadata(array $metadata, bool $merge = true)
+ * @method static void updateMetadata(array<string, mixed> $metadata, bool $merge = true)
  * @method static bool isMasquerading()
  * @method static bool hasExpired()
  * @method static bool stopIfExpired()

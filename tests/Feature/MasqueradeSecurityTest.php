@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace EloquentWorks\Masquerade\Tests\Feature;
 
 use EloquentWorks\Masquerade\Exceptions\CannotMasqueradeException;

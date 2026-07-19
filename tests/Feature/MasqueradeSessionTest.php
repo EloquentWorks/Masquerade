@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace EloquentWorks\Masquerade\Tests\Feature;
 
 use Carbon\CarbonImmutable;
@@ -71,7 +69,7 @@ final class MasqueradeSessionTest extends TestCase
         $newExpiresAt = Masquerade::extend(15, reason: 'Still troubleshooting');
 
         $this->assertNotNull($originalExpiresAt);
-        $this->assertSame($originalExpiresAt?->addMinutes(15)->toIso8601String(), $newExpiresAt->toIso8601String());
+        $this->assertSame($originalExpiresAt->addMinutes(15)->toIso8601String(), $newExpiresAt->toIso8601String());
         $this->assertSame(1, MasqueradeLog::query()->extended()->count());
         $this->assertDatabaseHas('masquerade_logs', [
             'action' => 'extended',

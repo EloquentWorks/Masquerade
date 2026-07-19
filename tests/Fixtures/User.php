@@ -1,17 +1,14 @@
 <?php
 
-declare(strict_types=1);
-
 namespace EloquentWorks\Masquerade\Tests\Fixtures;
 
 use EloquentWorks\Masquerade\Traits\HasMasquerade;
 use Illuminate\Contracts\Auth\Authenticatable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as AuthenticatableUser;
 
 final class User extends AuthenticatableUser
 {
-    use HasFactory;
     use HasMasquerade;
 
     /**
@@ -29,7 +26,8 @@ final class User extends AuthenticatableUser
 
     public function canMasquerade(Authenticatable $target): bool
     {
-        return (bool) $this->getAttribute('is_admin') && ! $this->is($target);
+        return (bool) $this->getAttribute('is_admin')
+            && (! $target instanceof Model || ! $this->is($target));
     }
 
     public function canBeMasqueradedBy(Authenticatable $impersonator): bool

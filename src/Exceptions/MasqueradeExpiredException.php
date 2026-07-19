@@ -9,8 +9,6 @@ final class MasqueradeExpiredException extends MasqueradeException
 {
     /**
      * Create a new exception instance.
-     *
-     * @param  string  $message
      */
     public static function make(): self
     {

@@ -1,0 +1,75 @@
+{
+    "name": "eloquent-works/exile",
+    "description": "Comprehensive account, IP, network, device, strike, restriction, appeal, and moderation enforcement tools for Laravel applications.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "laravel",
+        "bans",
+        "moderation",
+        "security",
+        "ip-ban"
+    ],
+    "authors": [
+        {
+            "name": "Eloquent Works"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "illuminate/bus": "^11.15|^12.0|^13.0",
+        "illuminate/console": "^11.15|^12.0|^13.0",
+        "illuminate/contracts": "^11.15|^12.0|^13.0",
+        "illuminate/database": "^11.15|^12.0|^13.0",
+        "illuminate/encryption": "^11.15|^12.0|^13.0",
+        "illuminate/events": "^11.15|^12.0|^13.0",
+        "illuminate/filesystem": "^11.15|^12.0|^13.0",
+        "illuminate/http": "^11.15|^12.0|^13.0",
+        "illuminate/notifications": "^11.15|^12.0|^13.0",
+        "illuminate/queue": "^11.15|^12.0|^13.0",
+        "illuminate/routing": "^11.15|^12.0|^13.0",
+        "illuminate/support": "^11.15|^12.0|^13.0"
+    },
+    "require-dev": {
+        "larastan/larastan": "^3.10",
+        "laravel/pint": "^1.18",
+        "orchestra/testbench": "^9.0|^10.0|^11.0",
+        "phpunit/phpunit": "^11.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "EloquentWorks\\Exile\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "EloquentWorks\\Exile\\ExileServiceProvider"
+            ],
+            "aliases": {
+                "Exile": "EloquentWorks\\Exile\\Facades\\Exile"
+            }
+        }
+    },
+    "scripts": {
+        "format": "pint",
+        "format:test": "pint --test",
+        "analyse": "phpstan analyse --memory-limit=1G",
+        "test": "phpunit",
+        "quality": [
+            "@format:test",
+            "@analyse",
+            "@test"
+        ]
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

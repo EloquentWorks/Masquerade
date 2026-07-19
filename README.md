@@ -55,9 +55,9 @@ Masquerade::stop();
 
 | Laravel | PHP | Orchestra Testbench |
 | --- | --- | --- |
-| 10.x | 8.2+ | 8.x |
-| 11.x | 8.2+ | 9.x |
+| 11.15+ | 8.2+ | 9.x |
 | 12.x | 8.2+ | 10.x |
+| 13.x | 8.3+ | 11.x |
 
 ## 📦 Installation
 
@@ -517,20 +517,20 @@ it('allows support admins to masquerade as users', function (): void {
 
 Full documentation is available in the [docs](docs/README.md) directory:
 
-- 📦 [Installation](docs/installation.md)
-- ⚙️ [Configuration](docs/configuration.md)
-- 🧱 [Architecture](docs/architecture.md)
-- 🎭 [Masquerading](docs/masquerading.md)
-- 🔐 [Permissions](docs/permissions.md)
-- 🛣️ [Routes](docs/routes.md)
-- 🧩 [Middleware](docs/middleware.md)
+- [Installation](docs/installation.md)
+- [Configuration](docs/configuration.md)
+- [Architecture](docs/architecture.md)
+- [Masquerading](docs/masquerading.md)
+- [Permissions](docs/permissions.md)
+- [Routes](docs/routes.md)
+- [Middleware](docs/middleware.md)
 - [Audit Logs](docs/audit-logs.md)
-- 🖼️ [Views and Blade](docs/views-and-blade.md)
-- 📡 [Events](docs/events.md)
+- [Views and Blade](docs/views-and-blade.md)
+- [Events](docs/events.md)
 - [Commands and Scheduling](docs/commands-and-scheduling.md)
-- 🎨 [Customization](docs/customization.md)
-- 🛡️ [Security](docs/security.md)
-- ✅ [Testing](docs/testing.md)
+- [Customization](docs/customization.md)
+- [Security](docs/security.md)
+- [Testing](docs/testing.md)
 
 ## ✅ Quality Checks
 

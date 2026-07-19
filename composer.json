@@ -7,9 +7,13 @@
         "laravel",
         "impersonation",
         "impersonate",
-        "masquerade",
+        "user-impersonation",
         "admin",
+        "support",
         "audit",
+        "audit-log",
+        "session",
+        "security",
         "eloquent-works"
     ],
     "authors": [
@@ -17,6 +21,10 @@
             "name": "Eloquent Works"
         }
     ],
+    "support": {
+        "issues": "https://github.com/EloquentWorks/Masquerade/issues",
+        "source": "https://github.com/EloquentWorks/Masquerade"
+    },
     "require": {
         "php": "^8.2",
         "illuminate/auth": "^11.15|^12.0|^13.0",

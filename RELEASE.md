@@ -72,4 +72,4 @@ composer require eloquent-works/masquerade:^1.0
 php artisan masquerade:install --migrate --views
 ```
 
-Verify middleware, one enforcement action, one queued notification, one evidence checksum, and one escalation.
+Verify starting a masquerade session, stopping it, session restoration, audit logging, duration expiration, route blocking, and the Blade banner.

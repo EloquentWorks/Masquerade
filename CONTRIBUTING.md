@@ -162,7 +162,7 @@ Prefer accurate native types and useful PHPDoc over broad suppressions.
 For Eloquent relationships, preserve Larastan generics such as:
 
 ```php
-/** @return MorphMany<Ban, $this> */
+/** @return MorphMany<Masquerade, $this> */
 ```
 
 Avoid adding ignore rules unless the reported problem cannot be represented correctly in PHP or PHPDoc.

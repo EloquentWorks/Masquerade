@@ -512,6 +512,26 @@ it('allows support admins to masquerade as users', function (): void {
 });
 ```
 
+
+## 📚 Documentation
+
+Full documentation is available in the [docs](docs/README.md) directory:
+
+- 📦 [Installation](docs/installation.md)
+- ⚙️ [Configuration](docs/configuration.md)
+- 🧱 [Architecture](docs/architecture.md)
+- 🎭 [Masquerading](docs/masquerading.md)
+- 🔐 [Permissions](docs/permissions.md)
+- 🛣️ [Routes](docs/routes.md)
+- 🧩 [Middleware](docs/middleware.md)
+- [Audit Logs](docs/audit-logs.md)
+- 🖼️ [Views and Blade](docs/views-and-blade.md)
+- 📡 [Events](docs/events.md)
+- [Commands and Scheduling](docs/commands-and-scheduling.md)
+- 🎨 [Customization](docs/customization.md)
+- 🛡️ [Security](docs/security.md)
+- ✅ [Testing](docs/testing.md)
+
 ## ✅ Quality Checks
 
 ```bash
@@ -533,14 +553,12 @@ Only allow highly trusted users to masquerade. Always require authorization befo
 
 Masquerade regenerates the session ID when starting and stopping by default. Keep that enabled unless your application has a specific reason to disable it.
 
+Security vulnerabilities should be reported privately according to [SECURITY.md](SECURITY.md).
+
 ## 🤝 Contributing
 
-Contributions are welcome. Please run the quality suite before opening a pull request:
-
-```bash
-composer quality
-```
+See [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
 ## 📄 License
 
-Laravel Masquerade is open-source software licensed under the [MIT License](LICENSE.md).
+Laravel Masquerade is open-source software licensed under the [MIT License](LICENSE).

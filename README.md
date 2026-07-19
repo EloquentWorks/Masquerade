@@ -533,14 +533,12 @@ Only allow highly trusted users to masquerade. Always require authorization befo
 
 Masquerade regenerates the session ID when starting and stopping by default. Keep that enabled unless your application has a specific reason to disable it.
 
+Security vulnerabilities should be reported privately according to [SECURITY.md](SECURITY.md).
+
 ## 🤝 Contributing
 
-Contributions are welcome. Please run the quality suite before opening a pull request:
-
-```bash
-composer quality
-```
+See [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
 ## 📄 License
 
-Laravel Masquerade is open-source software licensed under the [MIT License](LICENSE.md).
+Laravel Masquerade is open-source software licensed under the [MIT License](LICENSE).

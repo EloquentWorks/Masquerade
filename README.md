@@ -55,9 +55,9 @@ Masquerade::stop();
 
 | Laravel | PHP | Orchestra Testbench |
 | --- | --- | --- |
-| 10.x | 8.2+ | 8.x |
-| 11.x | 8.2+ | 9.x |
+| 11.15+ | 8.2+ | 9.x |
 | 12.x | 8.2+ | 10.x |
+| 13.x | 8.3+ | 11.x |
 
 ## 📦 Installation
 

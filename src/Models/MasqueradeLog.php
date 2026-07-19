@@ -8,21 +8,24 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Carbon;
 
 /**
- * Class MasqueradeLog
+ * Represents a log entry for a masquerade impersonation session.
  *
- * Represents a log entry for a masquerade (impersonation) session.
- *
- * @property int $id The unique identifier for the log entry.
- * @property string $uuid The unique identifier for the masquerade session.
- * @property string $impersonator_type The class name of the impersonator model.
- * @property int $impersonator_id The ID of the impersonator model.
- * @property string $target_type The class name of the target model being impersonated.
- * @property int $target_id The ID of the target model being impersonated.
- * @property string|null $guard The authentication guard used for the masquerade session.
- * @property string|null $reason The reason for starting the masquerade session.
- * @property array|null $metadata Additional metadata associated with the masquerade session.
- * @property Carbon|null $started_at The timestamp when the masquerade session started.
- * @property Carbon|null $ended_at The timestamp when the masquerade session ended.
+ * @property int $id
+ * @property string $masquerade_uuid
+ * @property string $action
+ * @property string|null $guard
+ * @property string|null $impersonator_type
+ * @property int|null $impersonator_id
+ * @property string|null $target_type
+ * @property int|null $target_id
+ * @property string|null $reason
+ * @property string|null $ip_address
+ * @property string|null $user_agent
+ * @property array<string, mixed>|null $metadata
+ * @property Carbon|null $started_at
+ * @property Carbon|null $ended_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class MasqueradeLog extends Model
 {
@@ -54,24 +57,24 @@ class MasqueradeLog extends Model
     }
 
     /**
-     * Get the impersonator model associated with this log entry.
+     * Get the user that started the masquerade session.
      *
-     * @return MorphTo<Model, self> The polymorphic relationship to the impersonator model.
+     * @return MorphTo<Model, $this>
      */
     public function impersonator(): MorphTo
     {
-        // The `impersonator` method defines a polymorphic relationship to the impersonator model. It allows you to retrieve the model instance of the user who initiated the masquerade session, regardless of the specific model type (e.g., User, Admin, etc.) that is being impersonated.
-        return $this->morphTo();
+        // The `impersonator` method defines a polymorphic relationship to the user model that started the masquerade session. It uses the `morphTo` method to allow for different user models to be associated with the masquerade log entry. The relationship is defined by the `impersonator_type` and `impersonator_id` columns in the database.
+        return $this->morphTo('impersonator');
     }
 
     /**
-     * Get the target model associated with this log entry.
+     * Get the user that was impersonated.
      *
-     * @return MorphTo<Model, self> The polymorphic relationship to the target model.
+     * @return MorphTo<Model, $this>
      */
     public function target(): MorphTo
     {
-        // The `target` method defines a polymorphic relationship to the target model. It allows you to retrieve the model instance of the user who is being impersonated, regardless of the specific model type (e.g., User, Admin, etc.) that is being impersonated.
-        return $this->morphTo();
+        // The `target` method defines a polymorphic relationship to the user model that was impersonated during the masquerade session. It uses the `morphTo` method to allow for different user models to be associated with the masquerade log entry. The relationship is defined by the `target_type` and `target_id` columns in the database.
+        return $this->morphTo('target');
     }
 }

@@ -18,17 +18,13 @@ final class BlockMasquerade
 {
     /**
      * Create a new middleware instance.
-     *
-     * @param  MasqueradeManager  $masquerade
      */
     public function __construct(private readonly MasqueradeManager $masquerade) {}
 
     /**
      * Handle an incoming request.
      *
-     * @param  Request  $request
      * @param  Closure(Request): Response  $next
-     * @return Response
      */
     public function handle(Request $request, Closure $next): Response
     {

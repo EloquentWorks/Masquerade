@@ -2,6 +2,7 @@
 
 namespace EloquentWorks\Masquerade\Facades;
 
+use EloquentWorks\Masquerade\MasqueradeManager;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Facade;
 
@@ -17,7 +18,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static ?string uuid()
  * @method static array context()
  *
- * @see \EloquentWorks\Masquerade\MasqueradeManager
+ * @see MasqueradeManager
  */
 final class Masquerade extends Facade
 {

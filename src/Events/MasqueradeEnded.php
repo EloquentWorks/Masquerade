@@ -15,10 +15,10 @@ final class MasqueradeEnded
     /**
      * Create a new event instance.
      *
-     * @param Authenticatable|null $impersonator The user who was impersonating another user, or null if the impersonator is not available.
-     * @param mixed $target The user who was being impersonated.
-     * @param string $guard The authentication guard that was used for the impersonation.
-     * @param string $uuid A unique identifier for the masquerade session.
+     * @param  Authenticatable|null  $impersonator  The user who was impersonating another user, or null if the impersonator is not available.
+     * @param  mixed  $target  The user who was being impersonated.
+     * @param  string  $guard  The authentication guard that was used for the impersonation.
+     * @param  string  $uuid  A unique identifier for the masquerade session.
      */
     public function __construct(
         public readonly ?Authenticatable $impersonator,

@@ -15,7 +15,7 @@ interface CanMasquerade
     /**
      * Determine if the current user can masquerade as the given target user.
      *
-     * @param Authenticatable $target The user that the current user wants to impersonate.
+     * @param  Authenticatable  $target  The user that the current user wants to impersonate.
      * @return bool True if the current user can masquerade as the target user, false otherwise.
      */
     public function canMasquerade(Authenticatable $target): bool;

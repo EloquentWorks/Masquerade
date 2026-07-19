@@ -15,7 +15,7 @@ trait HasMasquerade
     /**
      * Override this in your app to protect sensitive users.
      *
-     * @param Authenticatable $target The user that the current user wants to impersonate.
+     * @param  Authenticatable  $target  The user that the current user wants to impersonate.
      * @return bool True if the current user can masquerade as the target user, false
      */
     public function canMasquerade(Authenticatable $target): bool
@@ -26,7 +26,7 @@ trait HasMasquerade
     /**
      * Override this in your app to protect sensitive users.
      *
-     * @param Authenticatable $impersonator The user that is attempting to impersonate the current user.
+     * @param  Authenticatable  $impersonator  The user that is attempting to impersonate the current user.
      * @return bool True if the current user can be masqueraded by the impersonator, false otherwise.
      */
     public function canBeMasqueradedBy(Authenticatable $impersonator): bool

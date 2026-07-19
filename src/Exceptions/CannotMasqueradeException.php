@@ -10,7 +10,7 @@ final class CannotMasqueradeException extends MasqueradeException
     /**
      * Create a new exception instance with a specific reason.
      *
-     * @param string $reason The reason for the exception.
+     * @param  string  $reason  The reason for the exception.
      */
     public static function because(string $reason): self
     {

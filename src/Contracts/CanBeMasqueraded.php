@@ -15,7 +15,7 @@ interface CanBeMasqueraded
     /**
      * Determine if the current user can be masqueraded by the given impersonator.
      *
-     * @param Authenticatable $impersonator The user attempting to impersonate this user.
+     * @param  Authenticatable  $impersonator  The user attempting to impersonate this user.
      * @return bool True if the impersonator can masquerade as this user, false otherwise.
      */
     public function canBeMasqueradedBy(Authenticatable $impersonator): bool;

@@ -25,11 +25,6 @@ final class MasqueradeManager
 {
     /**
      * Create a new MasqueradeManager instance.
-     *
-     * @param  \Illuminate\Contracts\Auth\Factory  $auth
-     * @param  \Illuminate\Contracts\Session\Session  $session
-     * @param  \Illuminate\Contracts\Events\Dispatcher  $events
-     * @param  \Illuminate\Http\Request  $request
      */
     public function __construct(
         private readonly AuthFactory $auth,
@@ -41,13 +36,9 @@ final class MasqueradeManager
     /**
      * Start masquerading as the target user.
      *
-     * @param  \Illuminate\Contracts\Auth\Authenticatable  $target
-     * @param  \Illuminate\Contracts\Auth\Authenticatable|null  $impersonator
-     * @param  string|null  $guard
-     * @param  string|null  $reason
      * @param  array<string, mixed>  $metadata
      *
-     * @throws \EloquentWorks\Masquerade\Exceptions\CannotMasqueradeException
+     * @throws CannotMasqueradeException
      */
     public function start(
         Authenticatable $target,
@@ -118,10 +109,6 @@ final class MasqueradeManager
 
     /**
      * Stop masquerading and return to the original user.
-     *
-     * @param  string|null  $guard
-     * @param  bool  $expired
-     * @return void
      */
     public function stop(?string $guard = null, bool $expired = false): void
     {
@@ -238,8 +225,8 @@ final class MasqueradeManager
     /**
      * Determine if an impersonator may masquerade as a target.
      *
-     * @param  \Illuminate\Contracts\Auth\Authenticatable  $impersonator The user attempting to impersonate another user.
-     * @param  \Illuminate\Contracts\Auth\Authenticatable  $target The user being impersonated.
+     * @param  Authenticatable  $impersonator  The user attempting to impersonate another user.
+     * @param  Authenticatable  $target  The user being impersonated.
      * @return bool True if the impersonator may masquerade as the target, false otherwise.
      */
     public function canMasquerade(Authenticatable $impersonator, Authenticatable $target): bool
@@ -277,7 +264,7 @@ final class MasqueradeManager
     /**
      * Get the original impersonator model.
      *
-     * @return \Illuminate\Contracts\Auth\Authenticatable|null The impersonator model, or null if not found.
+     * @return Authenticatable|null The impersonator model, or null if not found.
      */
     public function impersonator(): ?Authenticatable
     {
@@ -291,7 +278,7 @@ final class MasqueradeManager
     /**
      * Get the target model being masqueraded as.
      *
-     * @return \Illuminate\Contracts\Auth\Authenticatable|null The target model, or null if not found.
+     * @return Authenticatable|null The target model, or null if not found.
      */
     public function target(): ?Authenticatable
     {
@@ -319,7 +306,7 @@ final class MasqueradeManager
     /**
      * Get the timestamp when the current masquerade session started.
      *
-     * @return \Carbon\CarbonImmutable|null The timestamp when the masquerade session started, or null if not found.
+     * @return CarbonImmutable|null The timestamp when the masquerade session started, or null if not found.
      */
     public function startedAt(): ?CarbonImmutable
     {
@@ -330,7 +317,7 @@ final class MasqueradeManager
     /**
      * Get the timestamp when the current masquerade session will expire.
      *
-     * @return \Carbon\CarbonImmutable|null The timestamp when the masquerade session will expire, or null if not found.
+     * @return CarbonImmutable|null The timestamp when the masquerade session will expire, or null if not found.
      */
     public function expiresAt(): ?CarbonImmutable
     {
@@ -361,7 +348,6 @@ final class MasqueradeManager
      * Clear all masquerade session keys.
      *
      * This method removes all masquerade-related session data by forgetting the base key from the session. It effectively ends the masquerade session and clears any associated information.
-     * @return void
      */
     public function clear(): void
     {
@@ -375,7 +361,7 @@ final class MasqueradeManager
     /**
      * Resolve the guard to use for masquerading.
      *
-     * @param  string|null  $guard The guard to resolve, or null to use the default guard.
+     * @param  string|null  $guard  The guard to resolve, or null to use the default guard.
      * @return string The resolved guard name.
      */
     private function resolveGuard(?string $guard): string
@@ -402,7 +388,7 @@ final class MasqueradeManager
     /**
      * Generate a full session key for a specific masquerade-related data item.
      *
-     * @param  string  $name The name of the masquerade-related data item.
+     * @param  string  $name  The name of the masquerade-related data item.
      * @return string The full session key for the specified data item.
      */
     private function key(string $name): string
@@ -414,8 +400,8 @@ final class MasqueradeManager
     /**
      * Parse a time value into a CarbonImmutable instance.
      *
-     * @param  mixed  $value The value to parse, which can be a string or null.
-     * @return \Carbon\CarbonImmutable|null The parsed CarbonImmutable instance, or null if parsing fails.
+     * @param  mixed  $value  The value to parse, which can be a string or null.
+     * @return CarbonImmutable|null The parsed CarbonImmutable instance, or null if parsing fails.
      */
     private function parseTime(mixed $value): ?CarbonImmutable
     {
@@ -435,9 +421,9 @@ final class MasqueradeManager
     /**
      * Resolve an Authenticatable model from its type and ID.
      *
-     * @param  mixed  $type The class name of the model to resolve.
-     * @param  mixed  $id The ID of the model to resolve.
-     * @return \Illuminate\Contracts\Auth\Authenticatable|null The resolved Authenticatable model, or null if not found or invalid.
+     * @param  mixed  $type  The class name of the model to resolve.
+     * @param  mixed  $id  The ID of the model to resolve.
+     * @return Authenticatable|null The resolved Authenticatable model, or null if not found or invalid.
      */
     private function resolveAuthenticatable(mixed $type, mixed $id): ?Authenticatable
     {
@@ -461,16 +447,15 @@ final class MasqueradeManager
     /**
      * Record a masquerade action in the logs.
      *
-     * @param  string  $action The action being recorded (e.g., 'started', 'ended', 'expired').
-     * @param  \Illuminate\Contracts\Auth\Authenticatable|null  $impersonator The user who initiated the masquerade session, or null if not available.
-     * @param  \Illuminate\Contracts\Auth\Authenticatable|null  $target The user being impersonated, or null if not available.
-     * @param  string  $guard The authentication guard used for the masquerade session.
-     * @param  string|null  $reason The reason for starting the masquerade session, or null if not provided.
-     * @param  \Carbon\CarbonImmutable|null  $startedAt The timestamp when the masquerade session started, or null if not available.
-     * @param  \Carbon\CarbonImmutable|null  $endedAt The timestamp when the masquerade session ended, or null if not available.
-     * @param  string  $uuid A unique identifier for the masquerade session.
-     * @param  array<string, mixed>  $metadata Additional metadata associated with the masquerade session.
-     * @return void
+     * @param  string  $action  The action being recorded (e.g., 'started', 'ended', 'expired').
+     * @param  Authenticatable|null  $impersonator  The user who initiated the masquerade session, or null if not available.
+     * @param  Authenticatable|null  $target  The user being impersonated, or null if not available.
+     * @param  string  $guard  The authentication guard used for the masquerade session.
+     * @param  string|null  $reason  The reason for starting the masquerade session, or null if not provided.
+     * @param  CarbonImmutable|null  $startedAt  The timestamp when the masquerade session started, or null if not available.
+     * @param  CarbonImmutable|null  $endedAt  The timestamp when the masquerade session ended, or null if not available.
+     * @param  string  $uuid  A unique identifier for the masquerade session.
+     * @param  array<string, mixed>  $metadata  Additional metadata associated with the masquerade session.
      */
     private function record(
         string $action,

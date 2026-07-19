@@ -14,10 +14,10 @@ final class MasqueradeStarted
     /**
      * Create a new event instance.
      *
-     * @param Authenticatable $impersonator The user who is impersonating another user.
-     * @param Authenticatable $target The user who is being impersonated.
-     * @param string $guard The authentication guard that is being used for the impersonation.
-     * @param string|null $reason The reason for starting the masquerade, if any.
+     * @param  Authenticatable  $impersonator  The user who is impersonating another user.
+     * @param  Authenticatable  $target  The user who is being impersonated.
+     * @param  string  $guard  The authentication guard that is being used for the impersonation.
+     * @param  string|null  $reason  The reason for starting the masquerade, if any.
      */
     public function __construct(
         public readonly Authenticatable $impersonator,

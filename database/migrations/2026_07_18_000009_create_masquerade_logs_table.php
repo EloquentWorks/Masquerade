@@ -23,7 +23,7 @@ return new class extends Migration
 
             // Store the action performed (e.g., 'start', 'stop') and index it for efficient querying.
             $table->string('action')->index();
-            
+
             // Store the authentication guard used for the masquerade session, allowing null values and indexing it for faster lookups.
             $table->string('guard')->nullable()->index();
 

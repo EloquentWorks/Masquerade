@@ -16,10 +16,10 @@ final class MasqueradeDenied
     /**
      * Create a new event instance.
      *
-     * @param Authenticatable $impersonator The user attempting to impersonate another user.
-     * @param Authenticatable $target The user being impersonated.
-     * @param string $guard The authentication guard being used.
-     * @param string|null $reason The reason for denying the masquerade attempt, if any.
+     * @param  Authenticatable  $impersonator  The user attempting to impersonate another user.
+     * @param  Authenticatable  $target  The user being impersonated.
+     * @param  string  $guard  The authentication guard being used.
+     * @param  string|null  $reason  The reason for denying the masquerade attempt, if any.
      */
     public function __construct(
         public readonly Authenticatable $impersonator,

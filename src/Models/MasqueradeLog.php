@@ -5,6 +5,7 @@ namespace EloquentWorks\Masquerade\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Carbon;
 
 /**
  * Class MasqueradeLog
@@ -20,8 +21,8 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property string|null $guard The authentication guard used for the masquerade session.
  * @property string|null $reason The reason for starting the masquerade session.
  * @property array|null $metadata Additional metadata associated with the masquerade session.
- * @property \Illuminate\Support\Carbon|null $started_at The timestamp when the masquerade session started.
- * @property \Illuminate\Support\Carbon|null $ended_at The timestamp when the masquerade session ended.
+ * @property Carbon|null $started_at The timestamp when the masquerade session started.
+ * @property Carbon|null $ended_at The timestamp when the masquerade session ended.
  */
 class MasqueradeLog extends Model
 {

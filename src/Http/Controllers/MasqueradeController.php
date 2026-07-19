@@ -19,8 +19,8 @@ final class MasqueradeController extends Controller
     /**
      * Start a masquerade session for the specified user.
      *
-     * @param Request $request The incoming HTTP request.
-     * @param string|int $user The ID of the user to impersonate.
+     * @param  Request  $request  The incoming HTTP request.
+     * @param  string|int  $user  The ID of the user to impersonate.
      * @return RedirectResponse A redirect response to the specified URL or default route.
      */
     public function start(Request $request, string|int $user): RedirectResponse

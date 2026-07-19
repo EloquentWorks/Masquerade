@@ -9,8 +9,6 @@ final class MasqueradeExpiredException extends MasqueradeException
 {
     /**
      * Create a new exception instance with a default message.
-     *
-     * @return self
      */
     public static function make(): self
     {

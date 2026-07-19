@@ -7,7 +7,6 @@ use EloquentWorks\Masquerade\Commands\PruneMasqueradeLogsCommand;
 use EloquentWorks\Masquerade\Http\Middleware\BlockMasquerade;
 use EloquentWorks\Masquerade\Http\Middleware\EnforceMasqueradeDuration;
 use EloquentWorks\Masquerade\Http\Middleware\RequireMasquerade;
-use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
@@ -41,9 +40,6 @@ final class MasqueradeServiceProvider extends ServiceProvider
 
     /**
      * Bootstrap package services.
-     *
-     * @param  Router  $router
-     * @return void
      */
     public function boot(Router $router): void
     {

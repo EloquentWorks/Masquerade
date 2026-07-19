@@ -2,7 +2,7 @@
 
 Masquerading means a trusted user temporarily signs in as another user while the original account is remembered in the session.
 
-## Start a Session
+## ▶️ Start a Session
 
 ```php
 use EloquentWorks\Masquerade\Facades\Masquerade;
@@ -17,7 +17,7 @@ Masquerade::start(
 );
 ```
 
-## Provide an Explicit Impersonator
+## 👤 Provide an Explicit Impersonator
 
 Normally the current authenticated user is the impersonator. You can pass one explicitly:
 
@@ -30,7 +30,7 @@ Masquerade::start(
 );
 ```
 
-## Check the Current Session
+## 🔎 Check the Current Session
 
 ```php
 Masquerade::isMasquerading();
@@ -40,14 +40,14 @@ Masquerade::expiresAt();
 Masquerade::hasExpired();
 ```
 
-## Read the Users
+## 👥 Read the Users
 
 ```php
 $impersonator = Masquerade::impersonator();
 $target = Masquerade::target();
 ```
 
-## Read UI-Safe Context
+## 🧾 Read UI-Safe Context
 
 ```php
 $context = Masquerade::context();
@@ -61,7 +61,7 @@ $context['started_at'];
 $context['expires_at'];
 ```
 
-## Stop a Session
+## 🛑 Stop a Session
 
 ```php
 Masquerade::stop();
@@ -69,7 +69,7 @@ Masquerade::stop();
 
 Masquerade logs the original user back in, records an audit row, clears the session state, and regenerates the session ID when configured.
 
-## Stop Only if Expired
+## ⏱️ Stop Only if Expired
 
 ```php
 if (Masquerade::stopIfExpired()) {
@@ -77,7 +77,7 @@ if (Masquerade::stopIfExpired()) {
 }
 ```
 
-## Helper Function
+## 🛠️ Helper Function
 
 The global helper returns the same manager:
 

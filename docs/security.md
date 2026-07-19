@@ -2,7 +2,7 @@
 
 Masquerading is powerful and should be treated as privileged access.
 
-## Recommended Defaults
+## ✅ Recommended Defaults
 
 ```php
 'security' => [
@@ -14,7 +14,7 @@ Masquerading is powerful and should be treated as privileged access.
 ],
 ```
 
-## Require Strong Authorization
+## 🔐 Require Strong Authorization
 
 Only trusted roles should be able to start sessions.
 
@@ -34,7 +34,7 @@ public function canBeMasqueradedBy(Authenticatable $impersonator): bool
 }
 ```
 
-## Block Sensitive Actions
+## 🚫 Block Sensitive Actions
 
 Use `masquerade.block` on dangerous routes:
 
@@ -47,7 +47,7 @@ Route::middleware(['auth', 'masquerade.block'])->group(function (): void {
 });
 ```
 
-## Require Reasons
+## 📝 Require Reasons
 
 Reasons make audits more useful.
 
@@ -57,7 +57,7 @@ Reasons make audits more useful.
 ],
 ```
 
-## Keep Duration Limits Enabled
+## ⏱️ Keep Duration Limits Enabled
 
 ```php
 'duration' => [
@@ -74,11 +74,11 @@ Route::middleware(['web', 'auth', 'masquerade.duration'])->group(function (): vo
 });
 ```
 
-## Session Regeneration
+## 🔄 Session Regeneration
 
 Keep `regenerate_session_id` enabled to reduce session fixation risk when switching identities.
 
-## Audit Everything
+## 📜 Audit Everything
 
 Keep logging enabled for production support/admin tools.
 
@@ -92,6 +92,6 @@ Keep logging enabled for production support/admin tools.
 
 Review logs regularly and alert on unusual activity.
 
-## Avoid External Redirects
+## 🛑 Avoid External Redirects
 
 If you accept `redirect_to` values in custom controllers, restrict them to internal routes.

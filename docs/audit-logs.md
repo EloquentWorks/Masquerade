@@ -2,7 +2,7 @@
 
 Masquerade can record every started, ended, and expired session in `masquerade_logs`.
 
-## Migration Columns
+## 🧱 Migration Columns
 
 The default migration creates:
 
@@ -25,7 +25,7 @@ created_at
 updated_at
 ```
 
-## Query Logs
+## 🔎 Query Logs
 
 ```php
 use EloquentWorks\Masquerade\Models\MasqueradeLog;
@@ -35,7 +35,7 @@ $logs = MasqueradeLog::query()
     ->paginate();
 ```
 
-## Find a Session by UUID
+## 🧭 Find a Session by UUID
 
 ```php
 $logs = MasqueradeLog::query()
@@ -46,7 +46,7 @@ $logs = MasqueradeLog::query()
 
 A normal session usually has a `started` row and an `ended` row. An expired session has a `started` row and an `expired` row.
 
-## Access the Impersonator and Target
+## 🔗 Access the Impersonator and Target
 
 ```php
 $log->impersonator;
@@ -55,7 +55,7 @@ $log->target;
 
 These are polymorphic relationships, so your application can support custom authenticatable model classes.
 
-## Metadata
+## 🧾 Metadata
 
 Pass metadata when starting a session:
 
@@ -70,7 +70,7 @@ Masquerade::start(
 );
 ```
 
-## Privacy Controls
+## 🔐 Privacy Controls
 
 Disable IP or user-agent storage in config:
 
@@ -81,7 +81,7 @@ Disable IP or user-agent storage in config:
 ],
 ```
 
-## Custom Log Model
+## 🎨 Custom Log Model
 
 ```php
 'logging' => [

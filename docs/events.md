@@ -2,7 +2,7 @@
 
 Masquerade dispatches events during the impersonation lifecycle.
 
-## Events
+## 📡 Events
 
 ```php
 EloquentWorks\Masquerade\Events\MasqueradeStarted::class;
@@ -11,7 +11,7 @@ EloquentWorks\Masquerade\Events\MasqueradeDenied::class;
 EloquentWorks\Masquerade\Events\MasqueradeExpired::class;
 ```
 
-## Listen for Started Sessions
+## 🎧 Listen for Started Sessions
 
 ```php
 use EloquentWorks\Masquerade\Events\MasqueradeStarted;
@@ -25,7 +25,7 @@ Event::listen(MasqueradeStarted::class, function (MasqueradeStarted $event): voi
 });
 ```
 
-## Use Cases
+## 💡 Use Cases
 
 Events are useful for:
 
@@ -35,6 +35,6 @@ Events are useful for:
 - Metrics and analytics
 - Alerting when privileged accounts are targeted
 
-## Keep Listeners Safe
+## 🛡️ Keep Listeners Safe
 
 Avoid throwing unhandled exceptions from listeners. A listener failure should not leave the impersonation flow in an inconsistent state.

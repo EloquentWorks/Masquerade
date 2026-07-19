@@ -2,7 +2,7 @@
 
 Laravel Masquerade is designed to be used directly or customized around your admin panel.
 
-## Disable Built-In Routes
+## 🚫 Disable Built-In Routes
 
 ```php
 'routes' => [
@@ -12,7 +12,7 @@ Laravel Masquerade is designed to be used directly or customized around your adm
 
 Then use the `Masquerade` facade in your own controllers.
 
-## Custom Controller Example
+## 🧭 Custom Controller Example
 
 ```php
 use App\Models\User;
@@ -48,7 +48,7 @@ final class SupportMasqueradeController
 }
 ```
 
-## Custom Permission Names
+## 🪪 Custom Permission Names
 
 ```php
 'permissions' => [
@@ -57,7 +57,7 @@ final class SupportMasqueradeController
 ],
 ```
 
-## Custom Log Model
+## 🎨 Custom Log Model
 
 ```php
 'logging' => [
@@ -65,7 +65,7 @@ final class SupportMasqueradeController
 ],
 ```
 
-## Custom Banner
+## 🖼️ Custom Banner
 
 ```php
 'banner' => [
@@ -73,7 +73,7 @@ final class SupportMasqueradeController
 ],
 ```
 
-## Custom Messages
+## 💬 Custom Messages
 
 ```php
 'messages' => [

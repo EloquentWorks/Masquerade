@@ -2,7 +2,7 @@
 
 Masquerade performs permission checks before a session starts.
 
-## Add Permission Methods
+## 🧬 Add Permission Methods
 
 Add `HasMasquerade` to your user model and override the default permission methods.
 
@@ -27,7 +27,7 @@ class User extends AuthenticatableUser
 }
 ```
 
-## Two-Sided Authorization
+## 🔐 Two-Sided Authorization
 
 Masquerade checks both users:
 
@@ -36,7 +36,7 @@ Masquerade checks both users:
 
 This makes it easy to protect owners, super-admins, service accounts, or high-risk accounts.
 
-## Default Behavior
+## ⚙️ Default Behavior
 
 The included trait denies impersonation by default:
 
@@ -54,7 +54,7 @@ public function canBeMasqueradedBy(Authenticatable $impersonator): bool
 
 This safe default means your app has to opt in.
 
-## Custom Method Names
+## 🪪 Custom Method Names
 
 Change the method names in `config/masquerade.php`:
 
@@ -68,7 +68,7 @@ Change the method names in `config/masquerade.php`:
 
 Then implement those methods on your model.
 
-## Disable Model Methods
+## 🚫 Disable Model Methods
 
 If your app handles authorization elsewhere, you can disable model methods:
 
@@ -80,7 +80,7 @@ If your app handles authorization elsewhere, you can disable model methods:
 
 Only do this when your controller, policy, gate, or admin panel performs equivalent checks.
 
-## Policy Example
+## 🏛️ Policy Example
 
 ```php
 use EloquentWorks\Masquerade\Facades\Masquerade;

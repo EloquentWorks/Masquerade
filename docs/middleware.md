@@ -2,7 +2,7 @@
 
 Laravel Masquerade registers three middleware aliases.
 
-## `masquerade.block`
+## 🚫 `masquerade.block`
 
 Blocks the route while the current session is masquerading.
 
@@ -21,7 +21,7 @@ Good candidates:
 - Account deletion
 - Permission and role changes
 
-## `masquerade.duration`
+## ⏱️ `masquerade.duration`
 
 Stops expired sessions automatically before continuing the request.
 
@@ -40,7 +40,7 @@ Configure the limit:
 ],
 ```
 
-## `masquerade.required`
+## 🎭 `masquerade.required`
 
 Requires an active masquerade session.
 
@@ -51,7 +51,7 @@ Route::get('/support/masquerade-toolbar', SupportToolbarController::class)
 
 Use this for UI fragments, support overlays, or internal endpoints that only make sense during impersonation.
 
-## Recommended Route Group
+## 🧭 Recommended Route Group
 
 ```php
 Route::middleware(['web', 'auth', 'masquerade.duration'])->group(function (): void {

@@ -2,7 +2,7 @@
 
 Laravel Masquerade can register built-in routes, or you can disable them and create your own.
 
-## Built-In Routes
+## 🛣️ Built-In Routes
 
 When routes are enabled, Masquerade registers:
 
@@ -18,7 +18,7 @@ masquerade.start
 masquerade.stop
 ```
 
-## Start Form
+## ▶️ Start Form
 
 ```blade
 <form method="POST" action="{{ route('masquerade.start', $user) }}">
@@ -33,7 +33,7 @@ masquerade.stop
 </form>
 ```
 
-## Stop Form
+## 🛑 Stop Form
 
 ```blade
 <form method="POST" action="{{ route('masquerade.stop') }}">
@@ -45,7 +45,7 @@ masquerade.stop
 </form>
 ```
 
-## Route Configuration
+## ⚙️ Route Configuration
 
 ```php
 'routes' => [
@@ -59,7 +59,7 @@ masquerade.stop
 ],
 ```
 
-## Disable Built-In Routes
+## 🚫 Disable Built-In Routes
 
 ```php
 'routes' => [
@@ -82,7 +82,7 @@ Route::middleware(['web', 'auth'])
     });
 ```
 
-## Redirects
+## ↩️ Redirects
 
 The built-in controller accepts `redirect_to` from the request. If not provided, it uses the configured redirect value.
 

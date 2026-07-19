@@ -2,7 +2,7 @@
 
 Laravel Masquerade is built around a small manager class, Laravel's auth/session services, middleware, events, and an optional audit log model.
 
-## Main Components
+## 🧩 Main Components
 
 | Component | Purpose |
 | --- | --- |
@@ -13,7 +13,7 @@ Laravel Masquerade is built around a small manager class, Laravel's auth/session
 | Middleware | Blocks sensitive routes, enforces duration limits, or requires active masquerade. |
 | Events | Announces started, ended, denied, and expired lifecycle actions. |
 
-## Session Context
+## 🧠 Session Context
 
 The manager stores session values under the configured session key:
 
@@ -33,7 +33,7 @@ masquerade.expires_at
 
 The session context lets Masquerade restore the original account after the support/admin user stops masquerading.
 
-## Start Flow
+## ▶️ Start Flow
 
 1. Resolve the guard.
 2. Resolve the current authenticated impersonator unless one is provided.
@@ -46,7 +46,7 @@ The session context lets Masquerade restore the original account after the suppo
 9. Regenerate the session ID if configured.
 10. Dispatch `MasqueradeStarted`.
 
-## Stop Flow
+## 🛑 Stop Flow
 
 1. Resolve the guard from the session or config.
 2. Load the impersonator and target models.
@@ -56,6 +56,6 @@ The session context lets Masquerade restore the original account after the suppo
 6. Regenerate the session ID if configured.
 7. Dispatch `MasqueradeEnded` or `MasqueradeExpired`.
 
-## Storage Model
+## 🗄️ Storage Model
 
 Masquerade does not create a separate live-session table. Active state lives in the Laravel session. The database log table is used for audit history.

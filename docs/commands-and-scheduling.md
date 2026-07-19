@@ -2,7 +2,7 @@
 
 Laravel Masquerade includes install and pruning commands.
 
-## Install
+## 📦 Install
 
 ```bash
 php artisan masquerade:install
@@ -20,7 +20,7 @@ The installer publishes:
 - Migration
 - Banner view
 
-## Prune Logs
+## 🧹 Prune Logs
 
 ```bash
 php artisan masquerade:prune --days=90
@@ -28,7 +28,7 @@ php artisan masquerade:prune --days=90
 
 This deletes audit logs older than the provided number of days.
 
-## Schedule Pruning
+## ⏰ Schedule Pruning
 
 Add pruning to `routes/console.php` or your scheduler setup:
 
@@ -40,7 +40,7 @@ Schedule::command('masquerade:prune --days=180')
     ->withoutOverlapping();
 ```
 
-## Retention Guidance
+## 🗓️ Retention Guidance
 
 Choose retention based on your application's audit and compliance needs.
 

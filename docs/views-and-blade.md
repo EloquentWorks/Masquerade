@@ -2,7 +2,7 @@
 
 Laravel Masquerade ships with a small banner view and Blade helpers.
 
-## Conditional Directive
+## 🎭 Conditional Directive
 
 Use `@masquerading` to show UI only during an active session.
 
@@ -14,7 +14,7 @@ Use `@masquerading` to show UI only during an active session.
 @endmasquerading
 ```
 
-## Banner Directive
+## 🖼️ Banner Directive
 
 Render the package banner:
 
@@ -31,13 +31,13 @@ The directive respects this config value:
 ],
 ```
 
-## Manual Include
+## 🧩 Manual Include
 
 ```blade
 @include('masquerade::banner')
 ```
 
-## Publish the Banner View
+## 📤 Publish the Banner View
 
 ```bash
 php artisan vendor:publish --tag=masquerade-views
@@ -49,7 +49,7 @@ Published path:
 resources/views/vendor/masquerade/banner.blade.php
 ```
 
-## Custom Banner View
+## 🎨 Custom Banner View
 
 Create your own view and point the config to it:
 
@@ -60,7 +60,7 @@ Create your own view and point the config to it:
 ],
 ```
 
-## Example Layout Usage
+## 🧱 Example Layout Usage
 
 ```blade
 <body>

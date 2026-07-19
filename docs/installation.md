@@ -18,7 +18,7 @@ Run the published migration:
 php artisan migrate
 ```
 
-## Publish Assets Manually
+## 📤 Publish Assets Manually
 
 Publish the config file:
 
@@ -44,7 +44,7 @@ Force republishing:
 php artisan masquerade:install --force
 ```
 
-## Add the Trait
+## 🧬 Add the Trait
 
 Add `HasMasquerade` to the user model that can perform or receive masquerade sessions.
 
@@ -75,7 +75,7 @@ class User extends AuthenticatableUser
 
 By default, nobody can masquerade until your application explicitly allows it.
 
-## Verify Installation
+## ✅ Verify Installation
 
 ```bash
 php artisan route:list --name=masquerade

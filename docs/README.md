@@ -4,7 +4,7 @@ Laravel Masquerade provides secure Laravel user impersonation for trusted admini
 
 Use these docs when you want more detail than the main README.
 
-## Documentation Index
+## 📚 Documentation Index
 
 - 📦 [Installation](installation.md)
 - ⚙️ [Configuration](configuration.md)
@@ -21,7 +21,7 @@ Use these docs when you want more detail than the main README.
 - 🛡️ [Security](security.md)
 - ✅ [Testing](testing.md)
 
-## Suggested Read Order
+## 🧭 Suggested Read Order
 
 1. Start with [Installation](installation.md).
 2. Configure the package using [Configuration](configuration.md).
@@ -30,7 +30,7 @@ Use these docs when you want more detail than the main README.
 5. Protect dangerous routes with [Middleware](middleware.md).
 6. Review [Security](security.md) before using the package in production.
 
-## Icon Guide
+## 🎨 Icon Guide
 
 | Icon | Area |
 | --- | --- |

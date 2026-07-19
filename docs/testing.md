@@ -2,31 +2,31 @@
 
 Laravel Masquerade ships with PHPUnit/Testbench configuration for package testing.
 
-## Run Package Tests
+## 🧪 Run Package Tests
 
 ```bash
 composer test
 ```
 
-## Run Static Analysis
+## 🔎 Run Static Analysis
 
 ```bash
 composer analyse
 ```
 
-## Run Formatting
+## 🎨 Run Formatting
 
 ```bash
 composer format
 ```
 
-## Full Quality Suite
+## ✅ Full Quality Suite
 
 ```bash
 composer quality
 ```
 
-## Example Application Test
+## 🧪 Example Application Test
 
 ```php
 use App\Models\User;
@@ -56,7 +56,7 @@ it('allows a support admin to masquerade as a customer', function (): void {
 });
 ```
 
-## Test Blocked Routes
+## 🚫 Test Blocked Routes
 
 ```php
 it('blocks sensitive routes during masquerade', function (): void {
@@ -69,7 +69,7 @@ it('blocks sensitive routes during masquerade', function (): void {
 });
 ```
 
-## Test Audit Logs
+## 📜 Test Audit Logs
 
 ```php
 use EloquentWorks\Masquerade\Models\MasqueradeLog;

@@ -12,7 +12,7 @@ The file is published to:
 config/masquerade.php
 ```
 
-## Auth Guard
+## 🛡️ Auth Guard
 
 ```php
 'guard' => null,
@@ -20,7 +20,7 @@ config/masquerade.php
 
 When `null`, Masquerade uses Laravel's default auth guard. Set this to `web` or another session guard when your application has multiple guards.
 
-## User Model
+## 👤 User Model
 
 ```php
 'user_model' => env('AUTH_MODEL', 'App\\Models\\User'),
@@ -28,7 +28,7 @@ When `null`, Masquerade uses Laravel's default auth guard. Set this to `web` or 
 
 This model is used by the built-in controller routes when resolving the target user from the route parameter.
 
-## Session Key
+## 🔑 Session Key
 
 ```php
 'session_key' => 'masquerade',
@@ -36,7 +36,7 @@ This model is used by the built-in controller routes when resolving the target u
 
 Masquerade stores its context under this session key. Change it only if your application already uses the same key.
 
-## Routes
+## 🛣️ Routes
 
 ```php
 'routes' => [
@@ -58,7 +58,7 @@ Disable routes when you want to build a fully custom controller flow:
 ],
 ```
 
-## Permissions
+## 🔐 Permissions
 
 ```php
 'permissions' => [
@@ -70,7 +70,7 @@ Disable routes when you want to build a fully custom controller flow:
 
 When enabled, Masquerade calls both model methods before starting a session.
 
-## Security
+## 🛡️ Security
 
 ```php
 'security' => [
@@ -94,7 +94,7 @@ Recommended production values:
 ],
 ```
 
-## Duration Limit
+## ⏱️ Duration Limit
 
 ```php
 'duration' => [
@@ -105,7 +105,7 @@ Recommended production values:
 
 Use `masquerade.duration` middleware to enforce this limit during requests.
 
-## Logging
+## 🧾 Logging
 
 ```php
 'logging' => [
@@ -119,7 +119,7 @@ Use `masquerade.duration` middleware to enforce this limit during requests.
 
 Disable IP or user-agent storage if your application has stricter privacy requirements.
 
-## Banner
+## 🖼️ Banner
 
 ```php
 'banner' => [
@@ -130,7 +130,7 @@ Disable IP or user-agent storage if your application has stricter privacy requir
 
 Publish the view if you want to customize the UI.
 
-## Messages
+## 💬 Messages
 
 ```php
 'messages' => [

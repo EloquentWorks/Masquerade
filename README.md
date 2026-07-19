@@ -158,26 +158,6 @@ Masquerade::stop();
 
 When stopped, Masquerade logs the original user back in and clears the masquerade session state.
 
-## 🔎 Inspect the Current Session
-
-```php
-Masquerade::isMasquerading();
-Masquerade::hasExpired();
-Masquerade::impersonator();
-Masquerade::target();
-Masquerade::uuid();
-Masquerade::context();
-```
-
-The helper returns the same manager instance:
-
-```php
-masquerade()->isMasquerading();
-masquerade()->impersonator();
-masquerade()->target();
-masquerade()->context();
-```
-
 ## 🛡️ Protect Routes
 
 Block sensitive actions while masquerading:
@@ -314,33 +294,6 @@ $log->impersonator;
 $log->target;
 ```
 
-## ⏱️ Duration Limits
-
-Masquerade can automatically expire old sessions.
-
-```php
-'duration' => [
-    'enabled' => true,
-    'minutes' => 60,
-],
-```
-
-Add the duration middleware to routes that should enforce the limit:
-
-```php
-Route::middleware(['web', 'auth', 'masquerade.duration'])->group(function (): void {
-    // Protected app routes...
-});
-```
-
-You can also check expiration manually:
-
-```php
-if (Masquerade::stopIfExpired()) {
-    // The session was expired and stopped.
-}
-```
-
 ## 🚫 Sensitive Route Blocking
 
 Use `masquerade.block` on routes that should never be available while impersonating another account.
@@ -410,62 +363,6 @@ Event::listen(MasqueradeStarted::class, function (MasqueradeStarted $event): voi
         'guard' => $event->guard,
     ]);
 });
-```
-
-## ⚙️ Configuration
-
-Publish the configuration file:
-
-```bash
-php artisan vendor:publish --tag=masquerade-config
-```
-
-Important options:
-
-```php
-return [
-    'guard' => null,
-
-    'user_model' => env('AUTH_MODEL', 'App\\Models\\User'),
-
-    'session_key' => 'masquerade',
-
-    'routes' => [
-        'enabled' => true,
-        'prefix' => 'masquerade',
-        'middleware' => ['web', 'auth'],
-        'name' => 'masquerade.',
-        'start_route_parameter' => 'user',
-        'redirect_after_start' => '/',
-        'redirect_after_stop' => '/',
-    ],
-
-    'permissions' => [
-        'use_model_methods' => true,
-        'impersonator_method' => 'canMasquerade',
-        'target_method' => 'canBeMasqueradedBy',
-    ],
-
-    'security' => [
-        'allow_nested' => false,
-        'allow_same_user' => false,
-        'require_reason' => false,
-        'regenerate_session_id' => true,
-        'logout_on_missing_original_user' => true,
-    ],
-
-    'duration' => [
-        'enabled' => true,
-        'minutes' => 60,
-    ],
-
-    'logging' => [
-        'enabled' => true,
-        'table_name' => 'masquerade_logs',
-        'store_ip_address' => true,
-        'store_user_agent' => true,
-    ],
-];
 ```
 
 ## 🧰 Commands

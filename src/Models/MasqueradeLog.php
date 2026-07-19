@@ -2,6 +2,9 @@
 
 namespace EloquentWorks\Masquerade\Models;
 
+use EloquentWorks\Masquerade\Enums\MasqueradeAction;
+use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -15,9 +18,9 @@ use Illuminate\Support\Carbon;
  * @property string $action
  * @property string|null $guard
  * @property string|null $impersonator_type
- * @property int|null $impersonator_id
+ * @property int|string|null $impersonator_id
  * @property string|null $target_type
- * @property int|null $target_id
+ * @property int|string|null $target_id
  * @property string|null $reason
  * @property string|null $ip_address
  * @property string|null $user_agent
@@ -32,11 +35,15 @@ class MasqueradeLog extends Model
     use HasFactory;
 
     /**
+     * The attributes that are not mass assignable.
+     *
      * @var list<string>
      */
     protected $guarded = [];
 
     /**
+     * The attributes that should be cast.
+     *
      * @var array<string, string>
      */
     protected $casts = [
@@ -46,13 +53,10 @@ class MasqueradeLog extends Model
     ];
 
     /**
-     * Get the table name for the MasqueradeLog model.
-     *
-     * @return string The table name for the MasqueradeLog model.
+     * Get the table associated with the model.
      */
     public function getTable(): string
     {
-        // The `getTable` method retrieves the table name for the MasqueradeLog model. It checks the configuration for a custom table name under the key 'masquerade.logging.table_name'. If no custom table name is set, it defaults to 'masquerade_logs'.
         return (string) config('masquerade.logging.table_name', 'masquerade_logs');
     }
 
@@ -63,7 +67,6 @@ class MasqueradeLog extends Model
      */
     public function impersonator(): MorphTo
     {
-        // The `impersonator` method defines a polymorphic relationship to the user model that started the masquerade session. It uses the `morphTo` method to allow for different user models to be associated with the masquerade log entry. The relationship is defined by the `impersonator_type` and `impersonator_id` columns in the database.
         return $this->morphTo('impersonator');
     }
 
@@ -74,7 +77,138 @@ class MasqueradeLog extends Model
      */
     public function target(): MorphTo
     {
-        // The `target` method defines a polymorphic relationship to the user model that was impersonated during the masquerade session. It uses the `morphTo` method to allow for different user models to be associated with the masquerade log entry. The relationship is defined by the `target_type` and `target_id` columns in the database.
         return $this->morphTo('target');
+    }
+
+    /**
+     * Scope logs by action.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
+    public function scopeForAction(Builder $query, MasqueradeAction|string $action): Builder
+    {
+        return $query->where('action', $action instanceof MasqueradeAction ? $action->value : $action);
+    }
+
+    /**
+     * Scope started logs.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
+    public function scopeStarted(Builder $query): Builder
+    {
+        return $this->scopeForAction($query, MasqueradeAction::Started);
+    }
+
+    /**
+     * Scope ended logs.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
+    public function scopeEnded(Builder $query): Builder
+    {
+        return $this->scopeForAction($query, MasqueradeAction::Ended);
+    }
+
+    /**
+     * Scope denied logs.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
+    public function scopeDenied(Builder $query): Builder
+    {
+        return $this->scopeForAction($query, MasqueradeAction::Denied);
+    }
+
+    /**
+     * Scope expired logs.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
+    public function scopeExpired(Builder $query): Builder
+    {
+        return $this->scopeForAction($query, MasqueradeAction::Expired);
+    }
+
+    /**
+     * Scope extended logs.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
+    public function scopeExtended(Builder $query): Builder
+    {
+        return $this->scopeForAction($query, MasqueradeAction::Extended);
+    }
+
+    /**
+     * Scope logs by masquerade UUID.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
+    public function scopeForMasqueradeUuid(Builder $query, string $uuid): Builder
+    {
+        return $query->where('masquerade_uuid', $uuid);
+    }
+
+    /**
+     * Scope logs by impersonator.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
+    public function scopeForImpersonator(Builder $query, Authenticatable $impersonator): Builder
+    {
+        return $query
+            ->where('impersonator_type', $this->morphTypeFor($impersonator))
+            ->where('impersonator_id', $impersonator->getAuthIdentifier());
+    }
+
+    /**
+     * Scope logs by target.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
+    public function scopeForTarget(Builder $query, Authenticatable $target): Builder
+    {
+        return $query
+            ->where('target_type', $this->morphTypeFor($target))
+            ->where('target_id', $target->getAuthIdentifier());
+    }
+
+    /**
+     * Determine if the log was written for the given action.
+     */
+    public function isAction(MasqueradeAction|string $action): bool
+    {
+        return $this->action === ($action instanceof MasqueradeAction ? $action->value : $action);
+    }
+
+    /**
+     * Calculate the duration between started_at and ended_at.
+     */
+    public function durationInSeconds(): ?int
+    {
+        if (! $this->started_at instanceof Carbon || ! $this->ended_at instanceof Carbon) {
+            return null;
+        }
+
+        return (int) max(0, $this->started_at->diffInSeconds($this->ended_at, false));
+    }
+
+    private function morphTypeFor(Authenticatable $model): string
+    {
+        if ($model instanceof Model) {
+            return $model->getMorphClass();
+        }
+
+        return $model::class;
     }
 }

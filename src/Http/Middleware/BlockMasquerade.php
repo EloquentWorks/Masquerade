@@ -9,21 +9,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Middleware to block access to certain routes while masquerading.
- *
- * This middleware checks if the current user is masquerading. If they are, it aborts the request
- * with a 403 Forbidden response and a configurable message. This is useful for preventing users
- * from performing certain actions while impersonating another user.
  */
 final class BlockMasquerade
 {
-    /**
-     * Create a new middleware instance.
-     */
     public function __construct(private readonly MasqueradeManager $masquerade) {}
 
     /**
-     * Handle an incoming request.
-     *
      * @param  Closure(Request): Response  $next
      */
     public function handle(Request $request, Closure $next): Response
@@ -33,7 +24,7 @@ final class BlockMasquerade
             abort(403, (string) config('masquerade.messages.blocked', 'This action is blocked while masquerading.'));
         }
 
-        // If not masquerading, continue processing the request
+        // If not masquerading, allow the request to proceed
         return $next($request);
     }
 }

@@ -7,6 +7,7 @@ use EloquentWorks\Masquerade\Commands\PruneMasqueradeLogsCommand;
 use EloquentWorks\Masquerade\Http\Middleware\BlockMasquerade;
 use EloquentWorks\Masquerade\Http\Middleware\EnforceMasqueradeDuration;
 use EloquentWorks\Masquerade\Http\Middleware\RequireMasquerade;
+use EloquentWorks\Masquerade\Http\Middleware\ShareMasqueradeContext;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
@@ -34,7 +35,7 @@ final class MasqueradeServiceProvider extends ServiceProvider
             );
         });
 
-        // Create an alias for the MasqueradeManager to allow for easy access via the facade
+        // Create an alias for the MasqueradeManager to allow for easier access via the service container
         $this->app->alias(MasqueradeManager::class, 'masquerade');
     }
 
@@ -43,10 +44,10 @@ final class MasqueradeServiceProvider extends ServiceProvider
      */
     public function boot(Router $router): void
     {
-        // Load the package's views and make them available under the 'masquerade' namespace
+        // Load the package's views and make them available for publishing
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'masquerade');
 
-        // Load the package's routes if they are enabled in the configuration
+        // Load the package's routes if enabled in the configuration
         if ((bool) config('masquerade.routes.enabled', true)) {
             $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
         }
@@ -55,18 +56,19 @@ final class MasqueradeServiceProvider extends ServiceProvider
         $router->aliasMiddleware('masquerade.block', BlockMasquerade::class);
         $router->aliasMiddleware('masquerade.duration', EnforceMasqueradeDuration::class);
         $router->aliasMiddleware('masquerade.required', RequireMasquerade::class);
+        $router->aliasMiddleware('masquerade.context', ShareMasqueradeContext::class);
 
-        // Register a Blade directive to check if the user is currently masquerading
+        // Register a custom Blade directive to check if the user is currently masquerading
         Blade::if('masquerading', function (): bool {
             return app(MasqueradeManager::class)->isMasquerading();
         });
 
-        // Register a Blade directive to display the masquerade banner if enabled in the configuration
+        // Register a custom Blade directive to display the masquerade banner if enabled in the configuration
         Blade::directive('masqueradeBanner', function (): string {
             return "<?php if (config('masquerade.banner.enabled', true)) { echo view(config('masquerade.banner.view', 'masquerade::banner'))->render(); } ?>";
         });
 
-        // Publish configuration, migrations, views, and register console commands if running in the console
+        // Publish configuration, migrations, views, and register commands only when running in the console
         if (! $this->app->runningInConsole()) {
             return;
         }
@@ -76,17 +78,17 @@ final class MasqueradeServiceProvider extends ServiceProvider
             __DIR__.'/../config/masquerade.php' => config_path('masquerade.php'),
         ], 'masquerade-config');
 
-        // Publish the package's migration file to the application's database/migrations directory with a timestamped filename
+        // Publish migration files for the Masquerade package
         $this->publishes([
-            __DIR__.'/../database/migrations/create_masquerade_logs_table.php.stub' => database_path('migrations/'.date('Y_m_d_His').'_create_masquerade_logs_table.php'),
+            __DIR__.'/../database/migrations' => database_path('migrations'),
         ], 'masquerade-migrations');
 
-        // Publish the package's view file to the application's resources/views/vendor/masquerade directory
+        // Publish the package's view file to the application's resources/views/vendor directory for customization
         $this->publishes([
             __DIR__.'/../resources/views/banner.blade.php' => resource_path('views/vendor/masquerade/banner.blade.php'),
         ], 'masquerade-views');
 
-        // Register console commands provided by the package
+        // Register console commands provided by the Masquerade package
         $this->commands([
             InstallCommand::class,
             PruneMasqueradeLogsCommand::class,

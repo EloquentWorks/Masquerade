@@ -1,7 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EloquentWorks\Masquerade\Tests;
 
+use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use EloquentWorks\Masquerade\MasqueradeServiceProvider;
 use EloquentWorks\Masquerade\Tests\Fixtures\User;
 use Illuminate\Database\Schema\Blueprint;
@@ -57,8 +61,16 @@ abstract class TestCase extends OrchestraTestCase
             $table->timestamps();
         });
 
-        $migration = include __DIR__.'/../database/migrations/2026_07_18_000009_create_masquerade_logs_table.php';
+        $migration = include __DIR__.'/../database/migrations/create_masquerade_logs_table.php.stub';
         $migration->up();
+    }
+
+    protected function tearDown(): void
+    {
+        Carbon::setTestNow();
+        CarbonImmutable::setTestNow();
+
+        parent::tearDown();
     }
 
     /**

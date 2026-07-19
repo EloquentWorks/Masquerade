@@ -6,20 +6,13 @@ use Illuminate\Console\Command;
 
 /**
  * Class InstallCommand
- *
- * This command is responsible for installing Laravel Masquerade by publishing its configuration,
- * migrations, and views. It provides an option to force overwrite existing files.
  */
 final class InstallCommand extends Command
 {
-    /**
-     * @var string
-     */
+    /** @var string The signature of the console command. */
     protected $signature = 'masquerade:install {--force : Overwrite published files}';
 
-    /**
-     * @var string
-     */
+    /** @var string The description of the console command. */
     protected $description = 'Install Laravel Masquerade.';
 
     /**
@@ -27,32 +20,32 @@ final class InstallCommand extends Command
      */
     public function handle(): int
     {
-        // Inform the user that the installation process has started
+        // Display an informational message to the console
         $this->components->info('Installing Laravel Masquerade...');
 
-        // Publish the configuration file for Laravel Masquerade
+        // Publish the configuration file
         $this->callSilent('vendor:publish', [
             '--tag' => 'masquerade-config',
             '--force' => (bool) $this->option('force'),
         ]);
 
-        // Publish the migration files for Laravel Masquerade
+        // Publish the migration files
         $this->callSilent('vendor:publish', [
             '--tag' => 'masquerade-migrations',
             '--force' => (bool) $this->option('force'),
         ]);
 
-        // Publish the view files for Laravel Masquerade
+        // Publish the view files
         $this->callSilent('vendor:publish', [
             '--tag' => 'masquerade-views',
             '--force' => (bool) $this->option('force'),
         ]);
 
-        // Inform the user that the installation process has completed successfully
+        // Display a success message to the console
         $this->components->success('Laravel Masquerade installed successfully.');
         $this->components->info('Next: run php artisan migrate and add the HasMasquerade trait to your User model.');
 
-        // Return a success status code to indicate that the command executed successfully
+        // Return a success exit code
         return self::SUCCESS;
     }
 }

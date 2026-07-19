@@ -2,5 +2,6 @@ composer.lock
 /.phpunit.cache
 vendor
 /.idea
+/build/
 .DS_Store
 .vs

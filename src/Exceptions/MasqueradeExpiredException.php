@@ -8,7 +8,9 @@ namespace EloquentWorks\Masquerade\Exceptions;
 final class MasqueradeExpiredException extends MasqueradeException
 {
     /**
-     * Create a new exception instance with a default message.
+     * Create a new exception instance.
+     *
+     * @param  string  $message
      */
     public static function make(): self
     {

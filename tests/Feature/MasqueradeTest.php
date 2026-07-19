@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EloquentWorks\Masquerade\Tests\Feature;
 
 use EloquentWorks\Masquerade\Exceptions\CannotMasqueradeException;
 use EloquentWorks\Masquerade\Facades\Masquerade;
 use EloquentWorks\Masquerade\Models\MasqueradeLog;
+use EloquentWorks\Masquerade\Tests\Fixtures\User;
 use EloquentWorks\Masquerade\Tests\TestCase;
 use Illuminate\Support\Facades\Auth;
 
@@ -20,14 +23,22 @@ final class MasqueradeTest extends TestCase
         Masquerade::start($target, reason: 'Support');
 
         $this->assertTrue(Masquerade::isMasquerading());
-        $this->assertTrue(Auth::user()->is($target));
-        $this->assertTrue(Masquerade::impersonator()?->is($admin));
-        $this->assertTrue(Masquerade::target()?->is($target));
+        $currentUser = Auth::user();
+        $this->assertInstanceOf(User::class, $currentUser);
+        $this->assertTrue($currentUser->is($target));
+        $impersonator = Masquerade::impersonator();
+        $resolvedTarget = Masquerade::target();
+        $this->assertInstanceOf(User::class, $impersonator);
+        $this->assertInstanceOf(User::class, $resolvedTarget);
+        $this->assertTrue($impersonator->is($admin));
+        $this->assertTrue($resolvedTarget->is($target));
 
         Masquerade::stop();
 
         $this->assertFalse(Masquerade::isMasquerading());
-        $this->assertTrue(Auth::user()->is($admin));
+        $currentUser = Auth::user();
+        $this->assertInstanceOf(User::class, $currentUser);
+        $this->assertTrue($currentUser->is($admin));
     }
 
     public function test_non_admin_cannot_masquerade(): void

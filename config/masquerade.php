@@ -57,6 +57,7 @@ return [
         'start_route_parameter' => 'user',
         'redirect_after_start' => '/',
         'redirect_after_stop' => '/',
+        'allowed_redirect_hosts' => [],
     ],
 
     /*
@@ -99,13 +100,15 @@ return [
     |--------------------------------------------------------------------------
     |
     | When enabled, the duration middleware will automatically stop an expired
-    | masquerade session.
+    | masquerade session. Extensions may optionally be capped by max_minutes.
     |
     */
 
     'duration' => [
         'enabled' => true,
         'minutes' => 60,
+        'allow_extension' => true,
+        'max_minutes' => 0,
     ],
 
     /*
@@ -123,6 +126,8 @@ return [
         'table_name' => 'masquerade_logs',
         'store_ip_address' => true,
         'store_user_agent' => true,
+        'log_denied_attempts' => true,
+        'retention_days' => 90,
     ],
 
     /*

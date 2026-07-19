@@ -50,8 +50,11 @@ return new class extends Migration
             // Add the default created_at and updated_at timestamps for the log entry.
             $table->timestamps();
 
-            // Add a composite index on the action and created_at columns for efficient querying of logs based on action and time.
+            // Define indexes to optimize queries based on action, created_at, masquerade_uuid, impersonator, and target.
             $table->index(['action', 'created_at']);
+            $table->index(['masquerade_uuid', 'action']);
+            $table->index(['impersonator_type', 'impersonator_id', 'created_at'], 'masquerade_impersonator_created_index');
+            $table->index(['target_type', 'target_id', 'created_at'], 'masquerade_target_created_index');
         });
     }
 

@@ -3,9 +3,12 @@
 namespace EloquentWorks\Masquerade;
 
 use Carbon\CarbonImmutable;
+use EloquentWorks\Masquerade\Data\MasqueradeSession;
+use EloquentWorks\Masquerade\Enums\MasqueradeAction;
 use EloquentWorks\Masquerade\Events\MasqueradeDenied;
 use EloquentWorks\Masquerade\Events\MasqueradeEnded;
 use EloquentWorks\Masquerade\Events\MasqueradeExpired;
+use EloquentWorks\Masquerade\Events\MasqueradeExtended;
 use EloquentWorks\Masquerade\Events\MasqueradeStarted;
 use EloquentWorks\Masquerade\Exceptions\CannotMasqueradeException;
 use EloquentWorks\Masquerade\Models\MasqueradeLog;
@@ -19,7 +22,7 @@ use Illuminate\Support\Str;
 use Throwable;
 
 /**
- * Manages masquerade sessions, allowing users to impersonate other users.
+ * Manages masquerade sessions for impersonating users.
  */
 final class MasqueradeManager
 {
@@ -47,37 +50,41 @@ final class MasqueradeManager
         ?string $reason = null,
         array $metadata = [],
     ): void {
-        // Validate the guard and impersonator
+        // Resolve the guard to use for authentication
         $guard = $this->resolveGuard($guard);
         $impersonator ??= $this->auth->guard($guard)->user();
 
-        // Ensure the impersonator is an instance of Authenticatable
+        // Check if the impersonator is authenticated
         if (! $impersonator instanceof Authenticatable) {
             throw CannotMasqueradeException::because('No authenticated impersonator was found.');
         }
 
-        // Ensure the target is not the same as the impersonator if nested masquerading is not allowed
+        // Check if nested masquerade sessions are allowed
         if ($this->isMasquerading() && ! (bool) config('masquerade.security.allow_nested', false)) {
             throw CannotMasqueradeException::because('Nested masquerade sessions are disabled.');
         }
 
-        // Ensure a reason is provided if required by configuration
+        // Check if a reason is required and if it is provided
         if ((bool) config('masquerade.security.require_reason', false) && blank($reason)) {
             throw CannotMasqueradeException::because('A reason is required before starting a masquerade session.');
         }
 
-        // Ensure the impersonator is allowed to masquerade as the target
+        // Check if the impersonator is allowed to masquerade as the target user
         if (! $this->canMasquerade($impersonator, $target)) {
-            $this->events->dispatch(new MasqueradeDenied($impersonator, $target, $guard, $reason));
+            $uuid = (string) Str::uuid();
 
-            // Throw an exception with a configurable message if masquerading is denied
+            // Record the denied masquerade attempt and dispatch the MasqueradeDenied event
+            $this->recordDeniedAttempt($impersonator, $target, $guard, $reason, $metadata, $uuid);
+            $this->events->dispatch(new MasqueradeDenied($impersonator, $target, $guard, $reason, $metadata, $uuid));
+
+            // Throw an exception with a custom message if configured, otherwise use a default message
             throw CannotMasqueradeException::because((string) config('masquerade.messages.denied', 'You are not allowed to masquerade as this user.'));
         }
 
-        // Set up the masquerade session with relevant information
+        // Determine the current time and the masquerade session duration
         $now = CarbonImmutable::now();
         $uuid = (string) Str::uuid();
-        $minutes = (int) config('masquerade.duration.minutes', 60);
+        $minutes = max(1, (int) config('masquerade.duration.minutes', 60));
 
         // Store masquerade session data in the session
         $this->session->put($this->key('active'), true);
@@ -92,10 +99,10 @@ final class MasqueradeManager
         $this->session->put($this->key('started_at'), $now->toIso8601String());
         $this->session->put($this->key('expires_at'), $now->addMinutes($minutes)->toIso8601String());
 
-        // Record the start of the masquerade session in the logs
-        $this->record('started', $impersonator, $target, $guard, $reason, $metadata, $now, null, $uuid);
+        // Record the masquerade start action in the logs
+        $this->record(MasqueradeAction::Started, $impersonator, $target, $guard, $reason, $metadata, $now, null, $uuid);
 
-        // Log in as the target user without "remember me" functionality
+        // Log in as the target user without "remember me"
         $this->auth->guard($guard)->login($target, false);
 
         // Regenerate the session ID for security purposes if configured to do so
@@ -103,103 +110,193 @@ final class MasqueradeManager
             $this->session->migrate(true);
         }
 
-        // Dispatch an event indicating that masquerading has started
+        // Dispatch the MasqueradeStarted event
         $this->events->dispatch(new MasqueradeStarted($impersonator, $target, $guard, $reason, $metadata, $uuid));
     }
 
     /**
      * Stop masquerading and return to the original user.
+     *
+     * @throws CannotMasqueradeException
      */
     public function stop(?string $guard = null, bool $expired = false): void
     {
-        // If the current session is not masquerading, there is nothing to stop, so we return early.
+        // If there is no active masquerade session, simply return without doing anything
         if (! $this->isMasquerading()) {
             return;
         }
 
-        // Resolve the guard to use for stopping the masquerade session. If no guard is provided, we retrieve it from the session.
+        // Resolve the guard to use for authentication, defaulting to the one stored in the session
         $guard = $this->resolveGuard($guard ?? $this->session->get($this->key('guard')));
-        $uuid = (string) $this->session->get($this->key('uuid'));
-        $reason = $this->session->get($this->key('reason'));
-        $metadata = $this->session->get($this->key('metadata'), []);
+        $uuid = $this->uuid() ?? (string) Str::uuid();
+        $reason = $this->reason();
+        $metadata = $this->metadata();
         $startedAt = $this->startedAt();
 
-        // Retrieve the impersonator and target users from the session. If the target user is not found, we fall back to the currently authenticated user for the specified guard.
+        // If the impersonator is available, log them back in; otherwise, log out the current user if configured to do so
         $impersonator = $this->impersonator();
         $target = $this->target() ?? $this->auth->guard($guard)->user();
 
-        // If the impersonator is found, we log them back in without "remember me" functionality. If the impersonator is not found and the configuration specifies to log out on missing original user, we log out the current user.
+        // If the impersonator is available, log them back in; otherwise, log out the current user if configured to do so
         if ($impersonator instanceof Authenticatable) {
             $this->auth->guard($guard)->login($impersonator, false);
         } elseif ((bool) config('masquerade.security.logout_on_missing_original_user', true)) {
             $this->auth->guard($guard)->logout();
         }
 
-        // Record the end of the masquerade session in the logs, indicating whether it ended normally or expired.
+        // Record the masquerade end or expired action in the logs
         $this->record(
-            action: $expired ? 'expired' : 'ended',
+            action: $expired ? MasqueradeAction::Expired : MasqueradeAction::Ended,
             impersonator: $impersonator,
             target: $target instanceof Authenticatable ? $target : null,
             guard: $guard,
-            reason: is_string($reason) ? $reason : null,
-            metadata: is_array($metadata) ? $metadata : [],
+            reason: $reason,
+            metadata: $metadata,
             startedAt: $startedAt,
             endedAt: CarbonImmutable::now(),
             uuid: $uuid,
         );
 
-        // Clear all masquerade-related session data to ensure that the session is no longer in a masquerading state.
+        // Dispatch the appropriate event based on whether the session expired or ended normally
         $this->clear();
 
-        // Regenerate the session ID for security purposes if configured to do so. This helps prevent session fixation attacks by ensuring that the session ID changes after stopping masquerading.
+        // Regenerate the session ID for security purposes if configured to do so
         if ((bool) config('masquerade.security.regenerate_session_id', true)) {
             $this->session->migrate(true);
         }
 
-        // Dispatch the appropriate event based on whether the masquerade session expired or ended normally. This allows other parts of the application to respond to the end of a masquerade session.
+        // Dispatch the appropriate event based on whether the session expired or ended normally
         if ($expired) {
             $this->events->dispatch(new MasqueradeExpired($impersonator, $target, $guard, $uuid));
 
-            // If the masquerade session expired, we return early after dispatching the MasqueradeExpired event, as there is no need to dispatch the MasqueradeEnded event in this case.
             return;
         }
 
-        // If the masquerade session ended normally, we dispatch the MasqueradeEnded event to notify other parts of the application that the masquerade session has concluded.
+        // Dispatch the MasqueradeEnded event
         $this->events->dispatch(new MasqueradeEnded($impersonator, $target, $guard, $uuid));
     }
 
     /**
-     * Determine if the current session is masquerading.
+     * Extend the current masquerade session by a number of minutes.
      *
-     * @return bool True if the current session is masquerading, false otherwise.
+     * @throws CannotMasqueradeException
+     */
+    public function extend(int $minutes, ?string $reason = null): CarbonImmutable
+    {
+        // Ensure that there is an active masquerade session before attempting to extend it
+        if (! $this->isMasquerading()) {
+            throw CannotMasqueradeException::because('No active masquerade session was found.');
+        }
+
+        // Ensure that masquerade session extension is allowed in the configuration
+        if (! (bool) config('masquerade.duration.allow_extension', true)) {
+            throw CannotMasqueradeException::because('Masquerade session extension is disabled.');
+        }
+
+        // Ensure that the number of minutes to extend is at least 1
+        $minutes = max(1, $minutes);
+        $previousExpiresAt = $this->expiresAt() ?? CarbonImmutable::now();
+        $expiresAt = $previousExpiresAt->addMinutes($minutes);
+        $startedAt = $this->startedAt();
+        $maxMinutes = (int) config('masquerade.duration.max_minutes', 0);
+
+        // If a maximum duration is set, ensure that the new expiration time does not exceed it
+        if ($startedAt instanceof CarbonImmutable && $maxMinutes > 0) {
+            $maximumExpiresAt = $startedAt->addMinutes($maxMinutes);
+
+            // If the new expiration time exceeds the maximum allowed, set it to the maximum
+            if ($expiresAt->greaterThan($maximumExpiresAt)) {
+                $expiresAt = $maximumExpiresAt;
+            }
+        }
+
+        // Update the expiration time in the session
+        $this->session->put($this->key('expires_at'), $expiresAt->toIso8601String());
+
+        // Update the metadata with the extension details
+        $metadata = array_merge($this->metadata(), [
+            'extended_by_minutes' => $minutes,
+            'previous_expires_at' => $previousExpiresAt->toIso8601String(),
+            'new_expires_at' => $expiresAt->toIso8601String(),
+        ]);
+
+        // Record the masquerade extension action in the logs
+        $this->record(
+            action: MasqueradeAction::Extended,
+            impersonator: $this->impersonator(),
+            target: $this->target(),
+            guard: $this->guard() ?? $this->resolveGuard(null),
+            reason: $reason ?? $this->reason(),
+            metadata: $metadata,
+            startedAt: $startedAt,
+            endedAt: null,
+            uuid: $this->uuid() ?? (string) Str::uuid(),
+        );
+
+        // Dispatch the MasqueradeExtended event with the relevant details
+        $this->events->dispatch(new MasqueradeExtended(
+            impersonator: $this->impersonator(),
+            target: $this->target(),
+            guard: $this->guard() ?? $this->resolveGuard(null),
+            uuid: $this->uuid() ?? '',
+            previousExpiresAt: $previousExpiresAt,
+            expiresAt: $expiresAt,
+            reason: $reason,
+        ));
+
+        // Return the new expiration time for the masquerade session
+        return $expiresAt;
+    }
+
+    /**
+     * Merge or replace metadata on the active masquerade session.
+     *
+     * @param  array<string, mixed>  $metadata
+     *
+     * @throws CannotMasqueradeException
+     */
+    public function updateMetadata(array $metadata, bool $merge = true): void
+    {
+        // Ensure that there is an active masquerade session before attempting to update metadata
+        if (! $this->isMasquerading()) {
+            throw CannotMasqueradeException::because('No active masquerade session was found.');
+        }
+
+        // Update the metadata in the session, either merging with existing metadata or replacing it entirely
+        $this->session->put(
+            $this->key('metadata'),
+            $merge ? array_merge($this->metadata(), $metadata) : $metadata,
+        );
+    }
+
+    /**
+     * Determine if the current session is masquerading.
      */
     public function isMasquerading(): bool
     {
-        // Check if the masquerade session is active by retrieving the 'active' key from the session. If the key is not set, we default to false. This method returns true if the current session is in a masquerading state, and false otherwise.
+        // Check if the 'active' key in the session indicates that masquerading is active, defaulting to false if not set
         return (bool) $this->session->get($this->key('active'), false);
     }
 
     /**
      * Determine if the current masquerade session has expired.
-     *
-     * @return bool True if the current masquerade session has expired, false otherwise.
      */
     public function hasExpired(): bool
     {
-        // If the current session is not masquerading, we return false, as there is no masquerade session to check for expiration.
+        // Check if there is an active masquerade session; if not, it cannot be expired
         if (! $this->isMasquerading()) {
             return false;
         }
 
-        // If masquerade duration checking is disabled in the configuration, we return false, as we do not consider the session to have expired.
+        // Check if masquerade session expiration is enabled in the configuration; if not, it cannot be expired
         if (! (bool) config('masquerade.duration.enabled', true)) {
             return false;
         }
 
-        // Retrieve the expiration time of the masquerade session from the session data. If the expiration time is not set or is not a valid CarbonImmutable instance, we return false, as we cannot determine if the session has expired.
+        // Check if the current time is past the expiration time of the masquerade session
         $expiresAt = $this->expiresAt();
 
-        // Return true if the expiration time is a valid CarbonImmutable instance and is in the past, indicating that the masquerade session has expired. Otherwise, return false.
+        // If the expiration time is not set or is not a valid CarbonImmutable instance, consider the session as not expired
         return $expiresAt instanceof CarbonImmutable && $expiresAt->isPast();
     }
 
@@ -210,65 +307,87 @@ final class MasqueradeManager
      */
     public function stopIfExpired(): bool
     {
-        // If the current masquerade session has not expired, we return false, indicating that no action was taken to stop the session.
+        // If the masquerade session has not expired, return false without stopping it
         if (! $this->hasExpired()) {
             return false;
         }
 
-        // If the masquerade session has expired, we call the stop method with the 'expired' parameter set to true, indicating that the session is being stopped due to expiration. This will handle the necessary cleanup and logging for an expired session.
+        // If the masquerade session has expired, stop it and return true
         $this->stop(expired: true);
 
-        // After stopping the expired masquerade session, we return true to indicate that the session was successfully stopped due to expiration.
+        // Return true to indicate that the masquerade session was stopped due to expiration
         return true;
     }
 
     /**
      * Determine if an impersonator may masquerade as a target.
-     *
-     * @param  Authenticatable  $impersonator  The user attempting to impersonate another user.
-     * @param  Authenticatable  $target  The user being impersonated.
-     * @return bool True if the impersonator may masquerade as the target, false otherwise.
      */
     public function canMasquerade(Authenticatable $impersonator, Authenticatable $target): bool
     {
-        // If masquerading as the same user is not allowed, we check if the impersonator and target are the same user. If they are, we return false to indicate that masquerading is not allowed in this case.
+        // Check if masquerading as the same user is allowed in the configuration; if not, deny it
         if (! (bool) config('masquerade.security.allow_same_user', false)) {
             if ($impersonator::class === $target::class && $impersonator->getAuthIdentifier() === $target->getAuthIdentifier()) {
                 return false;
             }
         }
 
-        // If model methods for permission checks are disabled in the configuration, we return true, allowing masquerading without further checks.
+        // Check if model methods for permission checks are enabled in the configuration; if not, allow masquerading
         if (! (bool) config('masquerade.permissions.use_model_methods', true)) {
             return true;
         }
 
-        // Retrieve the method names for permission checks from the configuration. These methods are expected to be defined on the impersonator and target models.
+        // Check if the impersonator has a method to determine if they can masquerade as the target, and if so, call it
         $impersonatorMethod = (string) config('masquerade.permissions.impersonator_method', 'canMasquerade');
         $targetMethod = (string) config('masquerade.permissions.target_method', 'canBeMasqueradedBy');
 
-        // Check if the impersonator model has the specified method and call it with the target as an argument. If the method exists and returns false, we return false to indicate that masquerading is not allowed.
+        // Check if the target has a method to determine if they can be masqueraded by the impersonator, and if so, call it
         if (method_exists($impersonator, $impersonatorMethod) && $impersonator->{$impersonatorMethod}($target) === false) {
             return false;
         }
 
-        // Check if the target model has the specified method and call it with the impersonator as an argument. If the method exists and returns false, we return false to indicate that masquerading is not allowed.
+        // Check if the target has a method to determine if they can be masqueraded by the impersonator, and if so, call it
         if (method_exists($target, $targetMethod) && $target->{$targetMethod}($impersonator) === false) {
             return false;
         }
 
-        // If all checks pass, we return true to indicate that the impersonator may masquerade as the target.
+        // If all checks pass, allow masquerading
         return true;
     }
 
     /**
+     * Determine if the current session is masquerading as the given user.
+     */
+    public function isMasqueradingAs(Authenticatable $target): bool
+    {
+        // Check if the current target of the masquerade session matches the given target user
+        $currentTarget = $this->target();
+
+        // Return true if the current target is an instance of Authenticatable, has the same class as the given target, and has the same authentication identifier
+        return $currentTarget instanceof Authenticatable
+            && $currentTarget::class === $target::class
+            && $currentTarget->getAuthIdentifier() === $target->getAuthIdentifier();
+    }
+
+    /**
+     * Determine if the current session was started by the given user.
+     */
+    public function isMasqueradedBy(Authenticatable $impersonator): bool
+    {
+        // Check if the current impersonator of the masquerade session matches the given impersonator user
+        $currentImpersonator = $this->impersonator();
+
+        // Return true if the current impersonator is an instance of Authenticatable, has the same class as the given impersonator, and has the same authentication identifier
+        return $currentImpersonator instanceof Authenticatable
+            && $currentImpersonator::class === $impersonator::class
+            && $currentImpersonator->getAuthIdentifier() === $impersonator->getAuthIdentifier();
+    }
+
+    /**
      * Get the original impersonator model.
-     *
-     * @return Authenticatable|null The impersonator model, or null if not found.
      */
     public function impersonator(): ?Authenticatable
     {
-        // Retrieve the impersonator's type and ID from the session and resolve the corresponding Authenticatable model. If the impersonator is not found or the session data is invalid, this method will return null.
+        // Resolve the impersonator model from the session data using the stored impersonator type and ID
         return $this->resolveAuthenticatable(
             $this->session->get($this->key('impersonator_type')),
             $this->session->get($this->key('impersonator_id')),
@@ -277,12 +396,10 @@ final class MasqueradeManager
 
     /**
      * Get the target model being masqueraded as.
-     *
-     * @return Authenticatable|null The target model, or null if not found.
      */
     public function target(): ?Authenticatable
     {
-        // Retrieve the target's type and ID from the session and resolve the corresponding Authenticatable model. If the target is not found or the session data is invalid, this method will return null.
+        // Resolve the target model from the session data using the stored target type and ID
         return $this->resolveAuthenticatable(
             $this->session->get($this->key('target_type')),
             $this->session->get($this->key('target_id')),
@@ -290,39 +407,130 @@ final class MasqueradeManager
     }
 
     /**
-     * Get the unique identifier for the current masquerade session.
-     *
-     * @return string|null The UUID of the current masquerade session, or null if not found.
+     * Get the UUID of the current masquerade session.
      */
     public function uuid(): ?string
     {
-        // Retrieve the UUID of the current masquerade session from the session data. If the UUID is not found or is not a valid string, this method will return null.
+        // Get the UUID of the current masquerade session from the session data
         $uuid = $this->session->get($this->key('uuid'));
 
-        // Return the UUID if it is a valid string, otherwise return null.
+        // Return the UUID if it is a string, otherwise return null
         return is_string($uuid) ? $uuid : null;
     }
 
     /**
-     * Get the timestamp when the current masquerade session started.
+     * Get the guard name used for the current masquerade session.
+     */
+    public function guard(): ?string
+    {
+        // Get the guard name used for the current masquerade session from the session data
+        $guard = $this->session->get($this->key('guard'));
+
+        // Return the guard name if it is a string, otherwise return null
+        return is_string($guard) ? $guard : null;
+    }
+
+    /**
+     * Get the reason for the current masquerade session.
+     */
+    public function reason(): ?string
+    {
+        // Get the reason for the current masquerade session from the session data
+        $reason = $this->session->get($this->key('reason'));
+
+        // Return the reason if it is a string, otherwise return null
+        return is_string($reason) ? $reason : null;
+    }
+
+    /**
+     * Get the metadata for the current masquerade session.
      *
-     * @return CarbonImmutable|null The timestamp when the masquerade session started, or null if not found.
+     * @return array<string, mixed>
+     */
+    public function metadata(): array
+    {
+        // Get the metadata for the current masquerade session from the session data
+        $metadata = $this->session->get($this->key('metadata'), []);
+
+        // Return the metadata if it is an array, otherwise return an empty array
+        return is_array($metadata) ? $metadata : [];
+    }
+
+    /**
+     * Get the start time of the current masquerade session.
      */
     public function startedAt(): ?CarbonImmutable
     {
-        // Retrieve the start time of the current masquerade session from the session data and parse it into a CarbonImmutable instance. If the start time is not found or is not a valid string, this method will return null.
+        // Get the start time of the current masquerade session from the session data and parse it into a CarbonImmutable instance
         return $this->parseTime($this->session->get($this->key('started_at')));
     }
 
     /**
-     * Get the timestamp when the current masquerade session will expire.
-     *
-     * @return CarbonImmutable|null The timestamp when the masquerade session will expire, or null if not found.
+     * Get the expiration time of the current masquerade session.
      */
     public function expiresAt(): ?CarbonImmutable
     {
-        // Retrieve the expiration time of the current masquerade session from the session data and parse it into a CarbonImmutable instance. If the expiration time is not found or is not a valid string, this method will return null.
         return $this->parseTime($this->session->get($this->key('expires_at')));
+    }
+
+    /**
+     * Get the number of seconds that have elapsed since the masquerade session started.
+     */
+    public function elapsedSeconds(): ?int
+    {
+        // Get the start time of the current masquerade session
+        $startedAt = $this->startedAt();
+
+        // If the start time is not set or is not a valid CarbonImmutable instance, return null
+        if (! $startedAt instanceof CarbonImmutable) {
+            return null;
+        }
+
+        // Calculate the number of seconds that have elapsed since the masquerade session started by comparing the start time with the current time
+        return (int) max(0, $startedAt->diffInSeconds(CarbonImmutable::now(), false));
+    }
+
+    /**
+     * Get the number of seconds remaining until the masquerade session expires.
+     */
+    public function remainingSeconds(): ?int
+    {
+        // Get the expiration time of the current masquerade session
+        $expiresAt = $this->expiresAt();
+
+        // If the expiration time is not set or is not a valid CarbonImmutable instance, return null
+        if (! $expiresAt instanceof CarbonImmutable) {
+            return null;
+        }
+
+        // Calculate the number of seconds remaining until the masquerade session expires by comparing the expiration time with the current time
+        return (int) max(0, CarbonImmutable::now()->diffInSeconds($expiresAt, false));
+    }
+
+    /**
+     * Get a typed snapshot of the current masquerade session.
+     */
+    public function session(): ?MasqueradeSession
+    {
+        // If there is no active masquerade session, return null
+        if (! $this->isMasquerading()) {
+            return null;
+        }
+
+        // Create and return a new MasqueradeSession instance with the current session data
+        return new MasqueradeSession(
+            active: true,
+            uuid: $this->uuid(),
+            guard: $this->guard(),
+            impersonator: $this->impersonator(),
+            target: $this->target(),
+            reason: $this->reason(),
+            metadata: $this->metadata(),
+            startedAt: $this->startedAt(),
+            expiresAt: $this->expiresAt(),
+            elapsedSeconds: $this->elapsedSeconds(),
+            remainingSeconds: $this->remainingSeconds(),
+        );
     }
 
     /**
@@ -332,85 +540,81 @@ final class MasqueradeManager
      */
     public function context(): array
     {
-        // Return an array containing relevant information about the current masquerade session, including whether it is active, the UUID, guard, impersonator, target, start time, and expiration time. This context can be used for UI display or debugging purposes.
-        return [
-            'active' => $this->isMasquerading(),
-            'uuid' => $this->uuid(),
-            'guard' => $this->session->get($this->key('guard')),
-            'impersonator' => $this->impersonator(),
-            'target' => $this->target(),
-            'started_at' => $this->startedAt(),
-            'expires_at' => $this->expiresAt(),
-        ];
+        // Return a small context array that is safe for UI display.
+        $session = $this->session();
+
+        // If there is no active masquerade session, return an array with default values indicating that masquerading is not active
+        if (! $session instanceof MasqueradeSession) {
+            return [
+                'active' => false,
+                'uuid' => null,
+                'guard' => null,
+                'impersonator' => null,
+                'target' => null,
+                'reason' => null,
+                'metadata' => [],
+                'started_at' => null,
+                'expires_at' => null,
+                'elapsed_seconds' => null,
+                'remaining_seconds' => null,
+            ];
+        }
+
+        // Return the session data as an array for UI display
+        return $session->toArray();
     }
 
     /**
      * Clear all masquerade session keys.
-     *
-     * This method removes all masquerade-related session data by forgetting the base key from the session. It effectively ends the masquerade session and clears any associated information.
      */
     public function clear(): void
     {
-        // Clear all masquerade-related session data by removing the base key from the session. This effectively ends the masquerade session and removes any associated information.
-        $base = $this->baseKey();
-
-        // Remove the base key from the session, which clears all masquerade-related data.
-        $this->session->forget($base);
+        // Clear all masquerade session keys from the session storage.
+        $this->session->forget($this->baseKey());
     }
 
     /**
-     * Resolve the guard to use for masquerading.
-     *
-     * @param  string|null  $guard  The guard to resolve, or null to use the default guard.
-     * @return string The resolved guard name.
+     * Resolve the guard to use for authentication.
      */
     private function resolveGuard(?string $guard): string
     {
-        // If no guard is provided, we first check the configuration for a specific masquerade guard. If that is not set, we fall back to the default authentication guard defined in the application's configuration. This ensures that we always have a valid guard to use for masquerading.
+        // Resolve the guard to use for authentication, defaulting to the configured masquerade guard or the default auth guard if not provided
         $guard ??= config('masquerade.guard');
         $guard ??= config('auth.defaults.guard', 'web');
 
-        // Return the resolved guard name as a string. This guard will be used for authentication during the masquerade session.
+        // Return the resolved guard as a string
         return (string) $guard;
     }
 
     /**
-     * Get the base session key for masquerade-related data.
-     *
-     * @return string The base session key for masquerade-related data.
+     * Get the base session key for masquerade data.
      */
     private function baseKey(): string
     {
-        // Retrieve the base session key for masquerade-related data from the configuration. If no custom key is set, we default to 'masquerade'. This key is used as a prefix for all masquerade-related session data to avoid conflicts with other session data.
+        // Get the base session key for masquerade data, defaulting to 'masquerade' if not configured
         return (string) config('masquerade.session_key', 'masquerade');
     }
 
     /**
-     * Generate a full session key for a specific masquerade-related data item.
-     *
-     * @param  string  $name  The name of the masquerade-related data item.
-     * @return string The full session key for the specified data item.
+     * Get the full session key for a specific masquerade data item.
      */
     private function key(string $name): string
     {
-        // Generate a full session key for a specific masquerade-related data item by appending the item name to the base key.
+        // Get the full session key for a specific masquerade data item by appending the item name to the base key
         return $this->baseKey().'.'.$name;
     }
 
     /**
      * Parse a time value into a CarbonImmutable instance.
-     *
-     * @param  mixed  $value  The value to parse, which can be a string or null.
-     * @return CarbonImmutable|null The parsed CarbonImmutable instance, or null if parsing fails.
      */
     private function parseTime(mixed $value): ?CarbonImmutable
     {
-        // If the provided value is not a string or is an empty string, we return null, indicating that there is no valid time to parse.
+        // Parse a time value into a CarbonImmutable instance, returning null if the value is not a valid string or is empty
         if (! is_string($value) || $value === '') {
             return null;
         }
 
-        // Attempt to parse the provided value into a CarbonImmutable instance. If parsing fails (e.g., due to an invalid date format), we catch the exception and return null to indicate that the time could not be parsed.
+        // Attempt to parse the time value into a CarbonImmutable instance, returning null if parsing fails
         try {
             return CarbonImmutable::parse($value);
         } catch (Throwable) {
@@ -420,19 +624,15 @@ final class MasqueradeManager
 
     /**
      * Resolve an Authenticatable model from its type and ID.
-     *
-     * @param  mixed  $type  The class name of the model to resolve.
-     * @param  mixed  $id  The ID of the model to resolve.
-     * @return Authenticatable|null The resolved Authenticatable model, or null if not found or invalid.
      */
     private function resolveAuthenticatable(mixed $type, mixed $id): ?Authenticatable
     {
-        // If the provided type is not a string, is an empty string, or the ID is null, we return null, indicating that we cannot resolve a valid Authenticatable model.
+        // Resolve an Authenticatable model from its type and ID, returning null if the type is not a valid string or the ID is null
         if (! is_string($type) || $type === '' || $id === null) {
             return null;
         }
 
-        // Check if the specified type is a valid class and is a subclass of the Eloquent Model class. If not, we return null, as we cannot resolve an Authenticatable model from an invalid type.
+        // Check if the type is a valid class that is a subclass of Illuminate\Database\Eloquent\Model; if not, return null
         if (! class_exists($type) || ! is_subclass_of($type, Model::class)) {
             return null;
         }
@@ -440,25 +640,54 @@ final class MasqueradeManager
         /** @var class-string<Model> $type */
         $model = $type::query()->find($id);
 
-        // Return the resolved model if it is an instance of Authenticatable. If the model is not found or does not implement the Authenticatable interface, we return null.
+        // Return the resolved model if it is an instance of Authenticatable, otherwise return null
         return $model instanceof Authenticatable ? $model : null;
     }
 
     /**
-     * Record a masquerade action in the logs.
-     *
-     * @param  string  $action  The action being recorded (e.g., 'started', 'ended', 'expired').
-     * @param  Authenticatable|null  $impersonator  The user who initiated the masquerade session, or null if not available.
-     * @param  Authenticatable|null  $target  The user being impersonated, or null if not available.
-     * @param  string  $guard  The authentication guard used for the masquerade session.
-     * @param  string|null  $reason  The reason for starting the masquerade session, or null if not provided.
-     * @param  CarbonImmutable|null  $startedAt  The timestamp when the masquerade session started, or null if not available.
-     * @param  CarbonImmutable|null  $endedAt  The timestamp when the masquerade session ended, or null if not available.
-     * @param  string  $uuid  A unique identifier for the masquerade session.
-     * @param  array<string, mixed>  $metadata  Additional metadata associated with the masquerade session.
+     * @param  array<string, mixed>  $metadata
+     */
+    private function recordDeniedAttempt(
+        Authenticatable $impersonator,
+        Authenticatable $target,
+        string $guard,
+        ?string $reason,
+        array $metadata,
+        string $uuid,
+    ): void {
+        // If logging of denied masquerade attempts is disabled in the configuration, return without recording the attempt
+        if (! (bool) config('masquerade.logging.log_denied_attempts', true)) {
+            return;
+        }
+
+        // Record the denied masquerade attempt in the logs with the provided details, including the impersonator, target, guard, reason, metadata, and UUID
+        $this->record(MasqueradeAction::Denied, $impersonator, $target, $guard, $reason, $metadata, CarbonImmutable::now(), CarbonImmutable::now(), $uuid);
+    }
+
+    /**
+     * Get the morph type for an Authenticatable model.
+     */
+    private function morphTypeFor(?Authenticatable $model): ?string
+    {
+        // Get the morph type for an Authenticatable model, returning null if the model is not an instance of Authenticatable or if its authentication identifier is null
+        if (! $model instanceof Authenticatable || $model->getAuthIdentifier() === null) {
+            return null;
+        }
+
+        // If the model is an instance of Illuminate\Database\Eloquent\Model, return its morph class; otherwise, return the class name of the model
+        if ($model instanceof Model) {
+            return $model->getMorphClass();
+        }
+
+        // Return the class name of the model as the morph type
+        return $model::class;
+    }
+
+    /**
+     * @param  array<string, mixed>  $metadata
      */
     private function record(
-        string $action,
+        MasqueradeAction $action,
         ?Authenticatable $impersonator,
         ?Authenticatable $target,
         string $guard,
@@ -468,15 +697,15 @@ final class MasqueradeManager
         ?CarbonImmutable $endedAt,
         string $uuid,
     ): void {
-        // If masquerade logging is disabled in the configuration, we return early and do not record any logs.
+        // If logging of masquerade actions is disabled in the configuration, return without recording the action
         if (! (bool) config('masquerade.logging.enabled', true)) {
             return;
         }
 
-        // Retrieve the model class to use for logging masquerade actions from the configuration. If no custom model class is set, we default to using the MasqueradeLog model provided by the package.
+        // Get the model class to use for logging masquerade actions from the configuration, defaulting to MasqueradeLog::class if not set
         $modelClass = config('masquerade.logging.model', MasqueradeLog::class);
 
-        // Ensure that the specified model class is a valid string and exists. If not, we return early and do not record any logs.
+        // If the model class is not a valid string or does not exist, return without recording the action
         if (! is_string($modelClass) || ! class_exists($modelClass)) {
             return;
         }
@@ -484,11 +713,11 @@ final class MasqueradeManager
         /** @var class-string<MasqueradeLog> $modelClass */
         $modelClass::query()->create([
             'masquerade_uuid' => $uuid,
-            'action' => $action,
+            'action' => $action->value,
             'guard' => $guard,
-            'impersonator_type' => $impersonator?->getAuthIdentifier() !== null ? $impersonator::class : null,
+            'impersonator_type' => $this->morphTypeFor($impersonator),
             'impersonator_id' => $impersonator?->getAuthIdentifier(),
-            'target_type' => $target?->getAuthIdentifier() !== null ? $target::class : null,
+            'target_type' => $this->morphTypeFor($target),
             'target_id' => $target?->getAuthIdentifier(),
             'reason' => $reason,
             'ip_address' => (bool) config('masquerade.logging.store_ip_address', true) ? $this->request->ip() : null,

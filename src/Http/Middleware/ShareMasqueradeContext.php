@@ -8,9 +8,9 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Middleware to require a masquerade session for certain routes.
+ * Middleware to share masquerade context with the request.
  */
-final class RequireMasquerade
+final class ShareMasqueradeContext
 {
     public function __construct(private readonly MasqueradeManager $masquerade) {}
 
@@ -19,12 +19,12 @@ final class RequireMasquerade
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Check if the user is currently masquerading
-        if (! $this->masquerade->isMasquerading()) {
-            abort(403, 'A masquerade session is required for this route.');
-        }
+        // Share masquerade context with the request attributes
+        $request->attributes->set('masquerade.active', $this->masquerade->isMasquerading());
+        $request->attributes->set('masquerade.context', $this->masquerade->context());
+        $request->attributes->set('masquerade.session', $this->masquerade->session());
 
-        // If the user is currently masquerading, allow the request to proceed
+        // Allow the request to proceed
         return $next($request);
     }
 }

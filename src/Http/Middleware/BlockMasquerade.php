@@ -12,6 +12,12 @@ use Symfony\Component\HttpFoundation\Response;
  */
 final class BlockMasquerade
 {
+    /**
+     * BlockMasquerade constructor.
+     *
+     * @param  MasqueradeManager  $masquerade
+     * @return void
+     */
     public function __construct(private readonly MasqueradeManager $masquerade) {}
 
     /**
@@ -24,7 +30,6 @@ final class BlockMasquerade
             abort(403, (string) config('masquerade.messages.blocked', 'This action is blocked while masquerading.'));
         }
 
-        // If not masquerading, allow the request to proceed
         return $next($request);
     }
 }

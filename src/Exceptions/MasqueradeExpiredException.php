@@ -8,7 +8,9 @@ namespace EloquentWorks\Masquerade\Exceptions;
 final class MasqueradeExpiredException extends MasqueradeException
 {
     /**
-     * Create a new exception instance.
+     * Create a new instance of the exception.
+     *
+     * @return self
      */
     public static function make(): self
     {

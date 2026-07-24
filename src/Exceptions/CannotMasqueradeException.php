@@ -3,12 +3,15 @@
 namespace EloquentWorks\Masquerade\Exceptions;
 
 /**
- * Exception thrown when a user cannot masquerade as another user.
+ * Exception thrown when a masquerade action cannot be performed.
  */
 final class CannotMasqueradeException extends MasqueradeException
 {
     /**
-     * Create a new exception instance with a reason.
+     * Create a new instance of the exception with a specific reason.
+     *
+     * @param  string  $reason
+     * @return self
      */
     public static function because(string $reason): self
     {

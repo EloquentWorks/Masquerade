@@ -12,6 +12,12 @@ use Symfony\Component\HttpFoundation\Response;
  */
 final class ShareMasqueradeContext
 {
+    /**
+     * ShareMasqueradeContext constructor.
+     *
+     * @param  MasqueradeManager  $masquerade
+     * @return void
+     */
     public function __construct(private readonly MasqueradeManager $masquerade) {}
 
     /**
@@ -19,12 +25,11 @@ final class ShareMasqueradeContext
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Share masquerade context with the request attributes
+        // Share masquerade context with the request
         $request->attributes->set('masquerade.active', $this->masquerade->isMasquerading());
         $request->attributes->set('masquerade.context', $this->masquerade->context());
         $request->attributes->set('masquerade.session', $this->masquerade->session());
 
-        // Allow the request to proceed
         return $next($request);
     }
 }

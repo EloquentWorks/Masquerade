@@ -3,11 +3,7 @@
 namespace EloquentWorks\Masquerade\Enums;
 
 /**
- * @method static self Started()
- * @method static self Ended()
- * @method static self Denied()
- * @method static self Expired()
- * @method static self Extended()
+ * Enum representing the different actions that can occur during a masquerade session.
  */
 enum MasqueradeAction: string
 {
@@ -16,4 +12,8 @@ enum MasqueradeAction: string
     case Denied = 'denied';
     case Expired = 'expired';
     case Extended = 'extended';
+    case MetadataUpdated = 'metadata_updated';
+    case NoteAdded = 'note_added';
+    case AbilityBlocked = 'ability_blocked';
+    case RiskDetected = 'risk_detected';
 }

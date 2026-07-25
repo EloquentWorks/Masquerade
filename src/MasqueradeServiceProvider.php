@@ -16,15 +16,11 @@ use Illuminate\Support\ServiceProvider;
 
 /**
  * Class MasqueradeServiceProvider
- *
- * @package EloquentWorks\Masquerade
  */
 final class MasqueradeServiceProvider extends ServiceProvider
 {
     /**
      * Register package services.
-     *
-     * @return void
      */
     public function register(): void
     {
@@ -44,9 +40,6 @@ final class MasqueradeServiceProvider extends ServiceProvider
 
     /**
      * Bootstrap package services.
-     *
-     * @param  Router  $router
-     * @return void
      */
     public function boot(Router $router): void
     {
@@ -84,9 +77,6 @@ final class MasqueradeServiceProvider extends ServiceProvider
         ], 'masquerade-config');
 
         //
-
-
-
 
         // Get the current timestamp to ensure unique migration filenames
         $timestamp = time();

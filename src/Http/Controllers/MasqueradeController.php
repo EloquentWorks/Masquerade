@@ -16,10 +16,6 @@ final class MasqueradeController extends Controller
 {
     /**
      * Start masquerading as a specified user.
-     *
-     * @param  Request  $request
-     * @param  string|int  $user
-     * @return RedirectResponse
      */
     public function start(Request $request, string|int $user): RedirectResponse
     {
@@ -58,9 +54,6 @@ final class MasqueradeController extends Controller
 
     /**
      * Stop masquerading and return to the original user.
-     *
-     * @param  Request  $request
-     * @return RedirectResponse
      */
     public function stop(Request $request): RedirectResponse
     {
@@ -79,11 +72,6 @@ final class MasqueradeController extends Controller
 
     /**
      * Determine a safe URL to redirect to after a masquerade action.
-     *
-     * @param  Request  $request
-     * @param  mixed  $redirectTo
-     * @param  string  $defaultConfigKey
-     * @return string
      */
     private function safeRedirectTo(Request $request, mixed $redirectTo, string $defaultConfigKey): string
     {

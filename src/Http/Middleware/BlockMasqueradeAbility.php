@@ -16,7 +16,6 @@ final class BlockMasqueradeAbility
     /**
      * BlockMasqueradeAbility constructor.
      *
-     * @param  MasqueradeManager  $masquerade
      * @return void
      */
     public function __construct(

@@ -15,7 +15,6 @@ final class EnforceMasqueradeDuration
     /**
      * EnforceMasqueradeDuration constructor.
      *
-     * @param  MasqueradeManager  $masquerade
      * @return void
      */
     public function __construct(private readonly MasqueradeManager $masquerade) {}

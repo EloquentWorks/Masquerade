@@ -8,8 +8,6 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
     public function up(): void
     {
@@ -20,7 +18,7 @@ return new class extends Migration
 
             // Add a UUID column for the masquerade session and index it for faster lookups.
             $table->uuid('masquerade_uuid')->index();
-            
+
             // Add a polymorphic relationship for the author of the note, allowing for different types of authors.
             $table->nullableMorphs('author');
 
@@ -41,8 +39,6 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
     public function down(): void
     {

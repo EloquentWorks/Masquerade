@@ -60,8 +60,6 @@ class MasqueradeLog extends Model
 
     /**
      * Get the table associated with the model.
-     *
-     * @return string
      */
     public function getTable(): string
     {
@@ -270,9 +268,6 @@ class MasqueradeLog extends Model
 
     /**
      * Determine if the log was written for the given action.
-     *
-     * @param  MasqueradeAction|string  $action
-     * @return bool
      */
     public function isAction(MasqueradeAction|string $action): bool
     {
@@ -328,9 +323,6 @@ class MasqueradeLog extends Model
 
     /**
      * Determine the morph type for a given Authenticatable model.
-     *
-     * @param  Authenticatable  $model
-     * @return string
      */
     private function morphTypeFor(Authenticatable $model): string
     {

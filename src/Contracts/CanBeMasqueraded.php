@@ -11,9 +11,6 @@ interface CanBeMasqueraded
 {
     /**
      * Determine if the model can be masqueraded by the given impersonator.
-     *
-     * @param  \Illuminate\Contracts\Auth\Authenticatable  $impersonator
-     * @return bool
      */
     public function canBeMasqueradedBy(Authenticatable $impersonator): bool;
 }

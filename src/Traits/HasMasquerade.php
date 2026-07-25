@@ -11,9 +11,6 @@ trait HasMasquerade
 {
     /**
      * Override this in your app to decide who can start masquerading.
-     *
-     * @param  Authenticatable  $target
-     * @return bool
      */
     public function canMasquerade(Authenticatable $target): bool
     {
@@ -22,9 +19,6 @@ trait HasMasquerade
 
     /**
      * Override this in your app to protect sensitive users.
-     *
-     * @param  Authenticatable  $impersonator
-     * @return bool
      */
     public function canBeMasqueradedBy(Authenticatable $impersonator): bool
     {
@@ -33,8 +27,6 @@ trait HasMasquerade
 
     /**
      * Check if the current user is masquerading.
-     *
-     * @return bool
      */
     public function isMasquerading(): bool
     {

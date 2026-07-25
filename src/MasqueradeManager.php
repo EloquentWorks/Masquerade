@@ -4,6 +4,7 @@ namespace EloquentWorks\Masquerade;
 
 use Carbon\CarbonImmutable;
 use EloquentWorks\Masquerade\Data\MasqueradeSession;
+use EloquentWorks\Masquerade\Enums\Masquerade;
 use EloquentWorks\Masquerade\Enums\MasqueradeAction;
 use EloquentWorks\Masquerade\Events\MasqueradeAbilityBlocked;
 use EloquentWorks\Masquerade\Events\MasqueradeDenied;
@@ -30,18 +31,11 @@ use Throwable;
 
 /**
  * Class MasqueradeManager
- *
- * @package EloquentWorks\Masquerade
  */
 final class MasqueradeManager
 {
     /**
      * MasqueradeManager constructor.
-     *
-     * @param  \Illuminate\Contracts\Auth\Factory  $auth
-     * @param  \Illuminate\Contracts\Session\Session  $session
-     * @param  \Illuminate\Contracts\Events\Dispatcher  $events
-     * @param  \Illuminate\Http\Request  $request
      */
     public function __construct(
         private readonly AuthFactory $auth,
@@ -53,13 +47,9 @@ final class MasqueradeManager
     /**
      * Start masquerading as the target user.
      *
-     * @param  \Illuminate\Contracts\Auth\Authenticatable  $target
-     * @param  \Illuminate\Contracts\Auth\Authenticatable|null  $impersonator
-     * @param  string|null  $guard
-     * @param  string|null  $reason
      * @param  array<string, mixed>  $metadata
-     * @param  string|null  $category
-     * @throws \EloquentWorks\Masquerade\Exceptions\CannotMasqueradeException
+     *
+     * @throws CannotMasqueradeException
      */
     public function start(
         Authenticatable $target,
@@ -141,7 +131,7 @@ final class MasqueradeManager
             uuid: $uuid,
             category: $category,
         );
-        
+
         // Log the masquerade start action
         $this->auth->guard($guard)->login($target, false);
 
@@ -160,9 +150,6 @@ final class MasqueradeManager
     /**
      * Stop masquerading and return to the original user.
      *
-     * @param  string|null  $guard
-     * @param  bool  $expired
-     * @param  string|null  $endedReason
      * @return void Returns nothing.
      */
     public function stop(?string $guard = null, bool $expired = false, ?string $endedReason = null): void
@@ -230,10 +217,7 @@ final class MasqueradeManager
     /**
      * Extend the current masquerade session by a number of minutes.
      *
-     * @param  int  $minutes
-     * @param  string|null  $reason
-     * @return \Carbon\CarbonImmutable
-     * @throws \EloquentWorks\Masquerade\Exceptions\CannotMasqueradeException
+     * @throws CannotMasqueradeException
      */
     public function extend(int $minutes, ?string $reason = null): CarbonImmutable
     {
@@ -335,8 +319,8 @@ final class MasqueradeManager
      * @param  array<string, mixed>  $metadata
      * @param  bool  $merge  Whether to merge the new metadata with the existing metadata (default: true).
      *                       If false, the new metadata will replace the existing metadata.
-     * @return void
-     * @throws \EloquentWorks\Masquerade\Exceptions\CannotMasqueradeException
+     *
+     * @throws CannotMasqueradeException
      */
     public function updateMetadata(array $metadata, bool $merge = true): void
     {
@@ -379,10 +363,7 @@ final class MasqueradeManager
     /**
      * Add a note to the active masquerade session.
      *
-     * @param  string  $note
-     * @param  \Illuminate\Contracts\Auth\Authenticatable|null  $author
      * @param  array<string, mixed>  $metadata
-     * @return \EloquentWorks\Masquerade\Models\MasqueradeNote
      */
     public function addNote(string $note, ?Authenticatable $author = null, array $metadata = []): MasqueradeNote
     {
@@ -443,7 +424,6 @@ final class MasqueradeManager
     /**
      * Get all notes for the active masquerade session.
      *
-     * @param  string|null  $uuid
      * @return EloquentCollection<int, MasqueradeNote>
      */
     public function notes(?string $uuid = null): EloquentCollection
@@ -463,9 +443,6 @@ final class MasqueradeManager
 
     /**
      * Determine if the current masquerade session blocks a given ability.
-     *
-     * @param  string  $ability
-     * @return bool
      */
     public function blocksAbility(string $ability): bool
     {
@@ -484,8 +461,7 @@ final class MasqueradeManager
     /**
      * Assert that the current masquerade session allows a given ability.
      *
-     * @param  string  $ability
-     * @throws \EloquentWorks\Masquerade\Exceptions\MasqueradeAbilityBlockedException
+     * @throws MasqueradeAbilityBlockedException
      */
     public function assertAbilityAllowed(string $ability): void
     {
@@ -504,10 +480,7 @@ final class MasqueradeManager
     /**
      * Record a blocked ability during the current masquerade session.
      *
-     * @param  string  $ability
-     * @param  string|null  $reason
      * @param  array<string, mixed>  $metadata
-     * @return void
      */
     public function recordBlockedAbility(string $ability, ?string $reason = null, array $metadata = []): void
     {
@@ -553,8 +526,6 @@ final class MasqueradeManager
 
     /**
      * Determine if the current session is masquerading.
-     *
-     * @return bool
      */
     public function isMasquerading(): bool
     {
@@ -564,8 +535,6 @@ final class MasqueradeManager
 
     /**
      * Determine if the current masquerade session has expired.
-     *
-     * @return bool
      */
     public function hasExpired(): bool
     {
@@ -589,8 +558,6 @@ final class MasqueradeManager
 
     /**
      * Stop the session if it expired.
-     *
-     * @return bool
      */
     public function stopIfExpired(): bool
     {
@@ -608,10 +575,6 @@ final class MasqueradeManager
 
     /**
      * Determine if an impersonator may masquerade as a target.
-     *
-     * @param Authenticatable $impersonator
-     * @param Authenticatable $target
-     * @return bool
      */
     public function canMasquerade(Authenticatable $impersonator, Authenticatable $target): bool
     {
@@ -647,9 +610,6 @@ final class MasqueradeManager
 
     /**
      * Determine if the current session is masquerading as the given user.
-     *
-     * @param Authenticatable $target
-     * @return bool
      */
     public function isMasqueradingAs(Authenticatable $target): bool
     {
@@ -665,9 +625,6 @@ final class MasqueradeManager
 
     /**
      * Determine if the current session was started by the given user.
-     *
-     * @param Authenticatable $impersonator
-     * @return bool
      */
     public function isMasqueradedBy(Authenticatable $impersonator): bool
     {
@@ -683,8 +640,6 @@ final class MasqueradeManager
 
     /**
      * Get the original impersonator model.
-     *
-     * @return \Illuminate\Contracts\Auth\Authenticatable|null
      */
     public function impersonator(): ?Authenticatable
     {
@@ -697,8 +652,6 @@ final class MasqueradeManager
 
     /**
      * Get the target model being masqueraded as.
-     *
-     * @return \Illuminate\Contracts\Auth\Authenticatable|null
      */
     public function target(): ?Authenticatable
     {
@@ -711,8 +664,6 @@ final class MasqueradeManager
 
     /**
      * Get the UUID of the current masquerade session.
-     *
-     * @return string|null
      */
     public function uuid(): ?string
     {
@@ -722,11 +673,9 @@ final class MasqueradeManager
         // Return the UUID as a string if it is a string, otherwise return null
         return is_string($uuid) ? $uuid : null;
     }
-    
+
     /**
      * Get the guard of the current masquerade session.
-     *
-     * @return string|null
      */
     public function guard(): ?string
     {
@@ -736,11 +685,9 @@ final class MasqueradeManager
         // Return the guard as a string if it is a string, otherwise return null
         return is_string($guard) ? $guard : null;
     }
-    
+
     /**
      * Get the reason for the current masquerade session.
-     *
-     * @return string|null
      */
     public function reason(): ?string
     {
@@ -753,8 +700,6 @@ final class MasqueradeManager
 
     /**
      * Get the category of the current masquerade session.
-     *
-     * @return string|null
      */
     public function category(): ?string
     {
@@ -767,19 +712,15 @@ final class MasqueradeManager
 
     /**
      * Get the number of times the current masquerade session has been extended.
-     *
-     * @return int
      */
     public function extensionCount(): int
     {
         // Get the extension count from the masquerade session metadata using the session key, defaulting to 0 if not set
         return max(0, (int) $this->session->get($this->key('extension_count'), 0));
     }
-    
+
     /**
      * Get the ticket ID of the current masquerade session.
-     *
-     * @return string|null
      */
     public function ticketId(): ?string
     {
@@ -792,8 +733,6 @@ final class MasqueradeManager
 
     /**
      * Get the ticket URL of the current masquerade session.
-     *
-     * @return string|null
      */
     public function ticketUrl(): ?string
     {
@@ -806,10 +745,6 @@ final class MasqueradeManager
 
     /**
      * Get a value from the masquerade session metadata.
-     *
-     * @param  string  $key
-     * @param  mixed  $default
-     * @return mixed
      */
     public function contextValue(string $key, mixed $default = null): mixed
     {
@@ -834,8 +769,6 @@ final class MasqueradeManager
 
     /**
      * Get the start time of the current masquerade session.
-     *
-     * @return \Carbon\CarbonImmutable|null
      */
     public function startedAt(): ?CarbonImmutable
     {
@@ -845,8 +778,6 @@ final class MasqueradeManager
 
     /**
      * Get the expiration time of the current masquerade session.
-     *
-     * @return \Carbon\CarbonImmutable|null
      */
     public function expiresAt(): ?CarbonImmutable
     {
@@ -857,8 +788,6 @@ final class MasqueradeManager
 
     /**
      * Get the number of seconds that have elapsed since the start of the current masquerade session.
-     *
-     * @return int|null
      */
     public function elapsedSeconds(): ?int
     {
@@ -876,8 +805,6 @@ final class MasqueradeManager
 
     /**
      * Get the number of seconds remaining until the expiration of the current masquerade session.
-     *
-     * @return int|null
      */
     public function remainingSeconds(): ?int
     {
@@ -896,7 +823,7 @@ final class MasqueradeManager
     /**
      * Get a typed snapshot of the current masquerade session.
      *
-     * @return \EloquentWorks\Masquerade\Models\MasqueradeSession|null
+     * @return Models\MasqueradeSession|null
      */
     public function session(): ?MasqueradeSession
     {
@@ -962,8 +889,6 @@ final class MasqueradeManager
 
     /**
      * Clear all masquerade session keys.
-     *
-     * @return void
      */
     public function clear(): void
     {
@@ -973,9 +898,6 @@ final class MasqueradeManager
 
     /**
      * Resolve the guard to use for the current masquerade session.
-     *
-     * @param  string|null  $guard
-     * @return string
      */
     private function resolveGuard(?string $guard): string
     {
@@ -989,9 +911,6 @@ final class MasqueradeManager
 
     /**
      * Resolve the category to use for the current masquerade session.
-     *
-     * @param  string|null  $category
-     * @return string|null
      */
     private function resolveCategory(?string $category): ?string
     {
@@ -1005,9 +924,7 @@ final class MasqueradeManager
     /**
      * Validate the category for the current masquerade session.
      *
-     * @param  string|null  $category
-     * @return void
-     * @throws \EloquentWorks\Masquerade\Exceptions\CannotMasqueradeException
+     * @throws CannotMasqueradeException
      */
     private function validateCategory(?string $category): void
     {
@@ -1032,8 +949,6 @@ final class MasqueradeManager
 
     /**
      * Get the base session key for masquerade.
-     *
-     * @return string
      */
     private function baseKey(): string
     {
@@ -1043,9 +958,6 @@ final class MasqueradeManager
 
     /**
      * Get the full session key for a given masquerade attribute.
-     *
-     * @param  string  $name
-     * @return string
      */
     private function key(string $name): string
     {
@@ -1055,9 +967,6 @@ final class MasqueradeManager
 
     /**
      * Parse a time value into a CarbonImmutable instance.
-     *
-     * @param  mixed  $value
-     * @return \Carbon\CarbonImmutable|null
      */
     private function parseTime(mixed $value): ?CarbonImmutable
     {
@@ -1076,10 +985,6 @@ final class MasqueradeManager
 
     /**
      * Resolve an Authenticatable model from a given type and ID.
-     *
-     * @param  mixed  $type
-     * @param  mixed  $id
-     * @return \Illuminate\Contracts\Auth\Authenticatable|null
      */
     private function resolveAuthenticatable(mixed $type, mixed $id): ?Authenticatable
     {
@@ -1103,14 +1008,7 @@ final class MasqueradeManager
     /**
      * Record a denied masquerade attempt in the log.
      *
-     * @param  \Illuminate\Contracts\Auth\Authenticatable  $impersonator
-     * @param  \Illuminate\Contracts\Auth\Authenticatable  $target
-     * @param  string  $guard
-     * @param  string|null  $reason
      * @param  array<string, mixed>  $metadata
-     * @param  string  $uuid
-     * @param  string|null  $category
-     * @return void
      */
     private function recordDeniedAttempt(
         Authenticatable $impersonator,
@@ -1144,9 +1042,6 @@ final class MasqueradeManager
 
     /**
      * Get the morph type for a given Authenticatable model.
-     *
-     * @param  \Illuminate\Contracts\Auth\Authenticatable|null  $model
-     * @return string|null
      */
     private function morphTypeFor(?Authenticatable $model): ?string
     {
@@ -1166,12 +1061,6 @@ final class MasqueradeManager
 
     /**
      * Detect and handle potential risks associated with masquerade actions.
-     *
-     * @param  \Illuminate\Contracts\Auth\Authenticatable|null  $impersonator
-     * @param  \Illuminate\Contracts\Auth\Authenticatable|null  $target
-     * @param  string  $uuid
-     * @param  string  $trigger
-     * @return void
      */
     private function detectRisk(?Authenticatable $impersonator, ?Authenticatable $target, string $uuid, string $trigger): void
     {
@@ -1294,21 +1183,9 @@ final class MasqueradeManager
     /**
      * Record a masquerade action in the log.
      *
-     * @param  \EloquentWorks\Masquerade\Enums\Masquerade
-     * @param  \Illuminate\Contracts\Auth\Authenticatable|null  $impersonator
-     * @param  \Illuminate\Contracts\Auth\Authenticatable|null  $target
-     * @param  string  $guard
-     * @param  string|null  $reason
+     * @param  Masquerade
      * @param  array<string, mixed>  $metadata
-     * @param  \Carbon\CarbonImmutable|null  $startedAt
-     * @param  \Carbon\CarbonImmutable|null  $endedAt
-     * @param  string  $uuid
-     * @param  string|null  $category
-     * @param  string|null  $ability
      * @param  array<int, string>  $riskFlags
-     * @param  int  $riskScore
-     * @param  int  $extensionCount
-     * @return void
      */
     private function record(
         MasqueradeAction $action,

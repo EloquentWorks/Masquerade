@@ -4,6 +4,7 @@ namespace EloquentWorks\Masquerade\Facades;
 
 use Carbon\CarbonImmutable;
 use EloquentWorks\Masquerade\Data\MasqueradeSession;
+use EloquentWorks\Masquerade\MasqueradeManager;
 use EloquentWorks\Masquerade\Models\MasqueradeNote;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Collection;
@@ -46,7 +47,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static array<string, mixed> context()
  * @method static void clear()
  *
- * @see \EloquentWorks\Masquerade\MasqueradeManager
+ * @see MasqueradeManager
  */
 final class Masquerade extends Facade
 {

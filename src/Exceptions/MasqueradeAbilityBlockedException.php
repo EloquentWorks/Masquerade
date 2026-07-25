@@ -9,9 +9,6 @@ final class MasqueradeAbilityBlockedException extends MasqueradeException
 {
     /**
      * Create a new instance of the exception for a specific ability.
-     *
-     * @param  string  $ability
-     * @return self
      */
     public static function forAbility(string $ability): self
     {

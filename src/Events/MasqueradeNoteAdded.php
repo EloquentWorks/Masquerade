@@ -13,10 +13,6 @@ final class MasqueradeNoteAdded
     /**
      * Create a new instance of the event.
      *
-     * @param  \EloquentWorks\Masquerade\Models\MasqueradeNote  $note
-     * @param  \Illuminate\Contracts\Auth\Authenticatable|null  $impersonator
-     * @param  \Illuminate\Contracts\Auth\Authenticatable|null  $target
-     * @param  string  $uuid
      * @return void
      */
     public function __construct(

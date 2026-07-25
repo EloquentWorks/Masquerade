@@ -13,10 +13,6 @@ final class MasqueradeMetadataUpdated
      * Create a new instance of the event.
      *
      * @param  array<string, mixed>  $metadata
-     * @param  \Illuminate\Contracts\Auth\Authenticatable|null  $impersonator
-     * @param  \Illuminate\Contracts\Auth\Authenticatable|null  $target
-     * @param  string  $uuid
-     * @param  bool  $merged
      * @return void
      */
     public function __construct(

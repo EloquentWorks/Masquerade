@@ -15,7 +15,6 @@ final class RequireMasquerade
     /**
      * RequireMasquerade constructor.
      *
-     * @param  MasqueradeManager  $masquerade
      * @return void
      */
     public function __construct(private readonly MasqueradeManager $masquerade) {}

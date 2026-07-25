@@ -12,12 +12,7 @@ final class MasqueradeDenied
     /**
      * Create a new event instance.
      *
-     * @param  \Illuminate\Contracts\Auth\Authenticatable  $impersonator
-     * @param  \Illuminate\Contracts\Auth\Authenticatable  $target
-     * @param  string  $guard
-     * @param  string|null  $reason
      * @param  array<string, mixed>  $metadata
-     * @param  string|null  $uuid
      * @return void
      */
     public function __construct(

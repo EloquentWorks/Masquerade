@@ -13,21 +13,7 @@ final readonly class MasqueradeSession
     /**
      * Create a new instance of the MasqueradeSession DTO.
      *
-     * @param  bool  $active
-     * @param  string|null  $uuid
-     * @param  string|null  $guard
-     * @param  \Illuminate\Contracts\Auth\Authenticatable|null  $impersonator
-     * @param  \Illuminate\Contracts\Auth\Authenticatable|null  $target
-     * @param  string|null  $reason
      * @param  array<string, mixed>  $metadata
-     * @param  \Carbon\CarbonImmutable|null  $startedAt
-     * @param  \Carbon\CarbonImmutable|null  $expiresAt
-     * @param  int|null  $elapsedSeconds
-     * @param  int|null  $remainingSeconds
-     * @param  string|null  $category
-     * @param  string|null  $ticketId
-     * @param  string|null  $ticketUrl
-     * @param  int  $extensionCount
      * @return void
      */
     public function __construct(

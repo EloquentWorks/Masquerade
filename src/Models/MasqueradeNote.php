@@ -39,8 +39,6 @@ class MasqueradeNote extends Model
 
     /**
      * Get the table associated with the model.
-     *
-     * @return string
      */
     public function getTable(): string
     {
@@ -61,7 +59,6 @@ class MasqueradeNote extends Model
      * Scope a query to only include notes for a given masquerade UUID.
      *
      * @param  Builder<static>  $query
-     * @param  string  $uuid
      * @return Builder<static>
      */
     public function scopeForMasqueradeUuid(Builder $query, string $uuid): Builder

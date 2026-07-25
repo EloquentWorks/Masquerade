@@ -12,11 +12,6 @@ final class MasqueradeAbilityBlocked
     /**
      * Create a new instance of the event.
      *
-     * @param  string  $ability
-     * @param  \Illuminate\Contracts\Auth\Authenticatable|null  $impersonator
-     * @param  \Illuminate\Contracts\Auth\Authenticatable|null  $target
-     * @param  string  $uuid
-     * @param  string|null  $reason
      * @param  array<string, mixed>  $metadata
      * @return void
      */

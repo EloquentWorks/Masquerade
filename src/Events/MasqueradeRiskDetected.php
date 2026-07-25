@@ -12,12 +12,7 @@ final class MasqueradeRiskDetected
     /**
      * Create a new instance of the event.
      *
-     * @param  int  $score
      * @param  array<int, string>  $flags
-     * @param  \Illuminate\Contracts\Auth\Authenticatable|null  $impersonator
-     * @param  \Illuminate\Contracts\Auth\Authenticatable|null  $target
-     * @param  string  $uuid
-     * @param  string  $trigger
      * @param  array<string, mixed>  $metadata
      * @return void
      */

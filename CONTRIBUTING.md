@@ -251,8 +251,6 @@ Before opening a pull request, confirm:
 - [ ] New behavior has tests
 - [ ] Documentation is updated
 - [ ] Database changes use new migrations
-- [ ] `CHANGELOG.md` is updated when appropriate
-- [ ] `UPGRADING.md` is updated when user action is required
 - [ ] No secrets, debug files, or generated artifacts are committed
 
 In the pull request description, explain:

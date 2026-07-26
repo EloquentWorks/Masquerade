@@ -238,14 +238,6 @@ Use relative links for repository documentation.
 
 Write clear, focused commit messages.
 
-Examples:
-
-```text
-Fix strict combined-ban matching
-Add evidence checksum verification tests
-Document customizable notification templates
-```
-
 Avoid mixing unrelated formatting, refactoring, and behavioral changes in one commit.
 
 ## 🔀 Pull Requests

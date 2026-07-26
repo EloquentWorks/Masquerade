@@ -1,6 +1,6 @@
 # 📜 Audit Logs
 
-Masquerade can record every started, ended, and expired session in `masquerade_logs`.
+Masquerade can record started, ended, denied, expired, and extended session activity in `masquerade_logs`.
 
 ## 🧱 Migration Columns
 
@@ -39,12 +39,24 @@ $logs = MasqueradeLog::query()
 
 ```php
 $logs = MasqueradeLog::query()
-    ->where('masquerade_uuid', $uuid)
+    ->forMasqueradeUuid($uuid)
     ->orderBy('created_at')
     ->get();
 ```
 
-A normal session usually has a `started` row and an `ended` row. An expired session has a `started` row and an `expired` row.
+A normal session usually has a `started` row and an `ended` row. An expired session has a `started` row and an `expired` row. A session extension records an `extended` row, and denied attempts can record a `denied` row.
+
+## 🧰 Log Scopes
+
+```php
+MasqueradeLog::query()->started()->get();
+MasqueradeLog::query()->ended()->get();
+MasqueradeLog::query()->denied()->get();
+MasqueradeLog::query()->expired()->get();
+MasqueradeLog::query()->extended()->get();
+MasqueradeLog::query()->forImpersonator($admin)->get();
+MasqueradeLog::query()->forTarget($user)->get();
+```
 
 ## 🔗 Access the Impersonator and Target
 
@@ -78,6 +90,7 @@ Disable IP or user-agent storage in config:
 'logging' => [
     'store_ip_address' => false,
     'store_user_agent' => false,
+'log_denied_attempts' => true,
 ],
 ```
 
@@ -90,3 +103,39 @@ Disable IP or user-agent storage in config:
 ```
 
 Your custom model should extend the package model or provide compatible columns and relationships.
+
+## 🆕 v1.1.0 Audit Actions
+
+Laravel Masquerade v1.1.0 adds more audit actions:
+
+```text
+metadata_updated
+note_added
+ability_blocked
+risk_detected
+```
+
+## 🧾 New Log Fields
+
+```text
+category
+ability
+ended_reason
+extension_count
+risk_score
+risk_flags
+```
+
+## 🔎 New Scopes
+
+```php
+MasqueradeLog::query()->notes()->get();
+
+MasqueradeLog::query()->abilityBlocked()->get();
+
+MasqueradeLog::query()->riskDetected()->get();
+
+MasqueradeLog::query()->forAbility('billing.update')->get();
+
+MasqueradeLog::query()->highRisk(50)->get();
+```

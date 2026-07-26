@@ -1,6 +1,6 @@
 # 🧩 Middleware
 
-Laravel Masquerade registers three middleware aliases.
+Laravel Masquerade registers four middleware aliases.
 
 ## 🚫 `masquerade.block`
 
@@ -26,7 +26,7 @@ Good candidates:
 Stops expired sessions automatically before continuing the request.
 
 ```php
-Route::middleware(['web', 'auth', 'masquerade.duration'])->group(function (): void {
+Route::middleware(['web', 'auth', 'masquerade.duration', 'masquerade.context'])->group(function (): void {
     Route::get('/dashboard', DashboardController::class);
 });
 ```
@@ -37,6 +37,8 @@ Configure the limit:
 'duration' => [
     'enabled' => true,
     'minutes' => 60,
+    'allow_extension' => true,
+    'max_minutes' => 0,
 ],
 ```
 
@@ -51,6 +53,20 @@ Route::get('/support/masquerade-toolbar', SupportToolbarController::class)
 
 Use this for UI fragments, support overlays, or internal endpoints that only make sense during impersonation.
 
+
+## 🧠 `masquerade.context`
+
+Shares masquerade state on request attributes for support panels, internal headers, or UI macros.
+
+```php
+Route::get('/support', SupportDashboardController::class)
+    ->middleware(['auth', 'masquerade.context']);
+
+$active = request()->attributes->get('masquerade.active');
+$context = request()->attributes->get('masquerade.context');
+$session = request()->attributes->get('masquerade.session');
+```
+
 ## 🧭 Recommended Route Group
 
 ```php
@@ -64,3 +80,14 @@ Route::middleware(['web', 'auth', 'masquerade.duration'])->group(function (): vo
     });
 });
 ```
+
+## 🛡️ Ability Middleware
+
+Use `masquerade.ability` to block a specific sensitive ability while masquerading:
+
+```php
+Route::post('/billing', UpdateBillingController::class)
+    ->middleware(['auth', 'masquerade.ability:billing.update']);
+```
+
+If the ability is configured in `masquerade.abilities.blocked`, the request is rejected and an `ability_blocked` audit log may be written.

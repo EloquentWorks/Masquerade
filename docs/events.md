@@ -9,6 +9,7 @@ EloquentWorks\Masquerade\Events\MasqueradeStarted::class;
 EloquentWorks\Masquerade\Events\MasqueradeEnded::class;
 EloquentWorks\Masquerade\Events\MasqueradeDenied::class;
 EloquentWorks\Masquerade\Events\MasqueradeExpired::class;
+EloquentWorks\Masquerade\Events\MasqueradeExtended::class;
 ```
 
 ## 🎧 Listen for Started Sessions
@@ -34,6 +35,7 @@ Events are useful for:
 - Support dashboards
 - Metrics and analytics
 - Alerting when privileged accounts are targeted
+- Tracking session extensions and denied attempts
 
 ## 🛡️ Keep Listeners Safe
 

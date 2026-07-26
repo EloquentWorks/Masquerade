@@ -822,8 +822,6 @@ final class MasqueradeManager
 
     /**
      * Get a typed snapshot of the current masquerade session.
-     *
-     * @return Models\MasqueradeSession|null
      */
     public function session(): ?MasqueradeSession
     {
@@ -1183,7 +1181,6 @@ final class MasqueradeManager
     /**
      * Record a masquerade action in the log.
      *
-     * @param  Masquerade
      * @param  array<string, mixed>  $metadata
      * @param  array<int, string>  $riskFlags
      */

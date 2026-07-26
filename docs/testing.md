@@ -76,3 +76,37 @@ use EloquentWorks\Masquerade\Models\MasqueradeLog;
 
 expect(MasqueradeLog::query()->where('action', 'started')->exists())->toBeTrue();
 ```
+
+## 🧷 Package Test Coverage
+
+The package test suite covers:
+
+- Starting and stopping masquerade sessions
+- Permission denials and protected users
+- Required reasons
+- Denied-attempt logging
+- Session metadata updates
+- Session extension and max-duration caps
+- Duration expiration
+- Event dispatching
+- Middleware behavior
+- Built-in route redirects and redirect safety
+- Audit log scopes and duration helpers
+- Pruning command dry-runs and forced deletes
+
+## 🆕 v1.1.0 Coverage
+
+Additional v1.1.0 tests cover:
+
+- Session notes
+- Disabled notes
+- Ticket context helpers
+- Reason categories
+- Invalid category rejection
+- Ability-level blocking
+- Ability middleware
+- CSV audit exports
+- JSON audit exports
+- Risk detection
+- Extension limits
+- Required extension reasons

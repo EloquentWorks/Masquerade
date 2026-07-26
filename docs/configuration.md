@@ -47,6 +47,7 @@ Masquerade stores its context under this session key. Change it only if your app
     'start_route_parameter' => 'user',
     'redirect_after_start' => '/',
     'redirect_after_stop' => '/',
+    'allowed_redirect_hosts' => [],
 ],
 ```
 
@@ -100,10 +101,12 @@ Recommended production values:
 'duration' => [
     'enabled' => true,
     'minutes' => 60,
+    'allow_extension' => true,
+    'max_minutes' => 0,
 ],
 ```
 
-Use `masquerade.duration` middleware to enforce this limit during requests.
+Use `masquerade.duration` middleware to enforce this limit during requests. Set `max_minutes` above zero to cap the total length of an extended session.
 
 ## 🧾 Logging
 
@@ -114,10 +117,12 @@ Use `masquerade.duration` middleware to enforce this limit during requests.
     'table_name' => 'masquerade_logs',
     'store_ip_address' => true,
     'store_user_agent' => true,
+    'log_denied_attempts' => true,
+    'retention_days' => 90,
 ],
 ```
 
-Disable IP or user-agent storage if your application has stricter privacy requirements.
+Disable IP or user-agent storage if your application has stricter privacy requirements. Set `log_denied_attempts` to `false` if you only want successful or expired sessions in the audit trail.
 
 ## 🖼️ Banner
 
@@ -139,5 +144,59 @@ Publish the view if you want to customize the UI.
     'denied' => 'You are not allowed to masquerade as this user.',
     'expired' => 'Your masquerade session has expired.',
     'blocked' => 'This action is blocked while masquerading.',
+],
+```
+
+## 🧾 Reason Categories
+
+```php
+'reasons' => [
+    'default_category' => null,
+    'allowed_categories' => [
+        'support',
+        'billing',
+        'bug_report',
+        'fraud_review',
+        'qa_testing',
+        'account_review',
+    ],
+],
+```
+
+## 🛡️ Ability Blocking
+
+```php
+'abilities' => [
+    'blocked' => [
+        'billing.update',
+        'password.change',
+        'two-factor.update',
+        'api-tokens.create',
+        'account.delete',
+        'payment-methods.update',
+    ],
+    'log_blocked' => true,
+],
+```
+
+## 📝 Notes
+
+```php
+'notes' => [
+    'enabled' => true,
+    'model' => EloquentWorks\Masquerade\Models\MasqueradeNote::class,
+    'table_name' => 'masquerade_notes',
+],
+```
+
+## 🚨 Risk Detection
+
+```php
+'risk' => [
+    'enabled' => false,
+    'max_sessions_per_hour' => 10,
+    'max_denied_attempts_per_hour' => 5,
+    'max_blocked_abilities_per_hour' => 3,
+    'score_threshold' => 1,
 ],
 ```

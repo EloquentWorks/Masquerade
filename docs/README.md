@@ -13,6 +13,7 @@ Use these docs when you want more detail than the main README.
 - 🔐 [Permissions](permissions.md)
 - 🛣️ [Routes](routes.md)
 - 🧩 [Middleware](middleware.md)
+- 🚀 [Advanced Features](advanced-features.md)
 - 📜 [Audit Logs](audit-logs.md)
 - 🖼️ [Views and Blade](views-and-blade.md)
 - 📡 [Events](events.md)
@@ -41,6 +42,7 @@ Use these docs when you want more detail than the main README.
 | 🔐 | Permissions |
 | 🛣️ | Routes |
 | 🧩 | Middleware |
+| 🚀 | Advanced features |
 | 📜 | Audit logs |
 | 🖼️ | Views and Blade |
 | 📡 | Events |

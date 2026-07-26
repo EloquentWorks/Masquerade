@@ -38,6 +38,10 @@ Masquerade::uuid();
 Masquerade::startedAt();
 Masquerade::expiresAt();
 Masquerade::hasExpired();
+Masquerade::elapsedSeconds();
+Masquerade::remainingSeconds();
+Masquerade::reason();
+Masquerade::metadata();
 ```
 
 ## 👥 Read the Users
@@ -58,7 +62,25 @@ $context['guard'];
 $context['impersonator'];
 $context['target'];
 $context['started_at'];
+$context['reason'];
+$context['metadata'];
 $context['expires_at'];
+$context['elapsed_seconds'];
+$context['remaining_seconds'];
+```
+
+## 🧠 Update Metadata
+
+```php
+Masquerade::updateMetadata([
+    'ticket_status' => 'waiting-on-customer',
+]);
+```
+
+## ⏱️ Extend a Session
+
+```php
+Masquerade::extend(15, reason: 'Support call is still active');
 ```
 
 ## 🛑 Stop a Session

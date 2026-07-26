@@ -46,8 +46,6 @@ Include:
 - Exception message and stack trace
 - A minimal reproduction or failing test
 
-Remove secrets, private evidence, access tokens, real IP addresses, and other sensitive information before posting.
-
 ## 💡 Suggesting Features
 
 Feature proposals should explain:

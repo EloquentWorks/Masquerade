@@ -5,10 +5,8 @@ Laravel Masquerade follows Semantic Versioning.
 ## 🧭 Prepare
 
 1. Complete [the release checklist](docs/release-checklist.md).
-2. Update `CHANGELOG.md`.
-3. Update `UPGRADING.md` when users must take action.
-4. Prepare the GitHub release notes.
-5. Confirm the working tree is clean.
+2. Prepare the GitHub release notes.
+3. Confirm the working tree is clean.
 
 ## ✅ Validate
 

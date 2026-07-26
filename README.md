@@ -38,12 +38,16 @@ Masquerade::stop();
 - Optional required reason before starting a session
 - Session ID regeneration when starting and stopping
 - Configurable max session duration
+- Session extension with optional max-duration caps
 - Automatic expiration middleware
 - Sensitive-route blocking middleware
 - Middleware for routes that require an active masquerade session
+- Request context middleware for support panels and toolbars
 - Full audit logging with actor and target morph relationships
 - Reason, IP address, user agent, metadata, start time, and end time logging
-- Start, stop, denied, and expired events
+- Query scopes for action, UUID, impersonator, and target log filtering
+- Optional denied-attempt logging
+- Start, stop, denied, expired, and extended events
 - Blade conditional directive and banner directive
 - Publishable banner view
 - Facade and global helper
@@ -158,6 +162,49 @@ Masquerade::stop();
 
 When stopped, Masquerade logs the original user back in and clears the masquerade session state.
 
+## 🔎 Inspect the Current Session
+
+```php
+Masquerade::isMasquerading();
+Masquerade::hasExpired();
+Masquerade::impersonator();
+Masquerade::target();
+Masquerade::uuid();
+Masquerade::reason();
+Masquerade::metadata();
+Masquerade::startedAt();
+Masquerade::expiresAt();
+Masquerade::elapsedSeconds();
+Masquerade::remainingSeconds();
+Masquerade::isMasqueradingAs($user);
+Masquerade::isMasqueradedBy($admin);
+Masquerade::session();
+Masquerade::context();
+```
+
+Update safe session metadata while troubleshooting:
+
+```php
+Masquerade::updateMetadata([
+    'ticket_status' => 'waiting-on-customer',
+]);
+```
+
+Extend the active session when a support task legitimately needs more time:
+
+```php
+Masquerade::extend(15, reason: 'Support call is still active');
+```
+
+The helper returns the same manager instance:
+
+```php
+masquerade()->isMasquerading();
+masquerade()->impersonator();
+masquerade()->target();
+masquerade()->context();
+```
+
 ## 🛡️ Protect Routes
 
 Block sensitive actions while masquerading:
@@ -182,6 +229,16 @@ Require an active masquerade session:
 ```php
 Route::get('/support/masquerade-toolbar', SupportToolbarController::class)
     ->middleware(['auth', 'masquerade.required']);
+```
+
+Share masquerade context on the request for toolbars, macros, and support panels:
+
+```php
+Route::middleware(['web', 'auth', 'masquerade.context'])->group(function (): void {
+    Route::get('/support', SupportDashboardController::class);
+});
+
+$context = request()->attributes->get('masquerade.context');
 ```
 
 ## 🧭 Built-In Routes
@@ -276,7 +333,7 @@ $logs = MasqueradeLog::query()
 Each log may include:
 
 - Masquerade UUID
-- Action: `started`, `ended`, or `expired`
+- Action: `started`, `ended`, `denied`, `expired`, or `extended`
 - Guard name
 - Impersonator morph type and ID
 - Target morph type and ID
@@ -292,6 +349,44 @@ Access the actor and target models:
 ```php
 $log->impersonator;
 $log->target;
+```
+
+Filter logs with expressive scopes:
+
+```php
+MasqueradeLog::query()->started()->latest()->get();
+MasqueradeLog::query()->denied()->latest()->get();
+MasqueradeLog::query()->extended()->latest()->get();
+MasqueradeLog::query()->forMasqueradeUuid($uuid)->get();
+MasqueradeLog::query()->forImpersonator($admin)->get();
+MasqueradeLog::query()->forTarget($user)->get();
+```
+
+## ⏱️ Duration Limits
+
+Masquerade can automatically expire old sessions.
+
+```php
+'duration' => [
+    'enabled' => true,
+    'minutes' => 60,
+],
+```
+
+Add the duration middleware to routes that should enforce the limit:
+
+```php
+Route::middleware(['web', 'auth', 'masquerade.duration'])->group(function (): void {
+    // Protected app routes...
+});
+```
+
+You can also check expiration manually:
+
+```php
+if (Masquerade::stopIfExpired()) {
+    // The session was expired and stopped.
+}
 ```
 
 ## 🚫 Sensitive Route Blocking
@@ -349,6 +444,7 @@ EloquentWorks\Masquerade\Events\MasqueradeStarted::class;
 EloquentWorks\Masquerade\Events\MasqueradeEnded::class;
 EloquentWorks\Masquerade\Events\MasqueradeDenied::class;
 EloquentWorks\Masquerade\Events\MasqueradeExpired::class;
+EloquentWorks\Masquerade\Events\MasqueradeExtended::class;
 ```
 
 Example listener registration:
@@ -365,6 +461,67 @@ Event::listen(MasqueradeStarted::class, function (MasqueradeStarted $event): voi
 });
 ```
 
+## ⚙️ Configuration
+
+Publish the configuration file:
+
+```bash
+php artisan vendor:publish --tag=masquerade-config
+```
+
+Important options:
+
+```php
+return [
+    'guard' => null,
+
+    'user_model' => env('AUTH_MODEL', 'App\\Models\\User'),
+
+    'session_key' => 'masquerade',
+
+    'routes' => [
+        'enabled' => true,
+        'prefix' => 'masquerade',
+        'middleware' => ['web', 'auth'],
+        'name' => 'masquerade.',
+        'start_route_parameter' => 'user',
+        'redirect_after_start' => '/',
+        'redirect_after_stop' => '/',
+        'allowed_redirect_hosts' => [],
+    ],
+
+    'permissions' => [
+        'use_model_methods' => true,
+        'impersonator_method' => 'canMasquerade',
+        'target_method' => 'canBeMasqueradedBy',
+    ],
+
+    'security' => [
+        'allow_nested' => false,
+        'allow_same_user' => false,
+        'require_reason' => false,
+        'regenerate_session_id' => true,
+        'logout_on_missing_original_user' => true,
+    ],
+
+    'duration' => [
+        'enabled' => true,
+        'minutes' => 60,
+        'allow_extension' => true,
+        'max_minutes' => 0,
+    ],
+
+    'logging' => [
+        'enabled' => true,
+        'table_name' => 'masquerade_logs',
+        'store_ip_address' => true,
+        'store_user_agent' => true,
+        'log_denied_attempts' => true,
+        'retention_days' => 90,
+    ],
+];
+```
+
 ## 🧰 Commands
 
 ```bash
@@ -377,7 +534,8 @@ Examples:
 ```bash
 php artisan masquerade:install --force
 
-php artisan masquerade:prune --days=90
+php artisan masquerade:prune --days=90 --dry-run
+php artisan masquerade:prune --days=90 --force
 ```
 
 ## 🧪 Testing Your App Integration
@@ -409,6 +567,82 @@ it('allows support admins to masquerade as users', function (): void {
 });
 ```
 
+### 📝 Session Notes
+
+```php
+Masquerade::addNote(
+    note: 'Checked the customer billing page.',
+    metadata: [
+        'ticket_id' => 'SUP-1042',
+    ],
+);
+
+$notes = Masquerade::notes();
+```
+
+### 🎟️ Ticket Context
+
+```php
+Masquerade::start(
+    target: $user,
+    reason: 'Troubleshooting checkout issue.',
+    metadata: [
+        'ticket_id' => 'SUP-1042',
+        'ticket_url' => 'https://support.example.com/tickets/SUP-1042',
+    ],
+    category: 'support',
+);
+
+Masquerade::ticketId();
+Masquerade::ticketUrl();
+Masquerade::contextValue('ticket_id');
+```
+
+### 🛡️ Ability Blocking
+
+Block sensitive actions while masquerading:
+
+```php
+Masquerade::assertAbilityAllowed('billing.update');
+```
+
+Or use middleware:
+
+```php
+Route::post('/billing', UpdateBillingController::class)
+    ->middleware(['auth', 'masquerade.ability:billing.update']);
+```
+
+### 📤 Audit Export
+
+```bash
+php artisan masquerade:export --format=csv
+php artisan masquerade:export --format=json
+php artisan masquerade:export --uuid=00000000-0000-0000-0000-000000000000
+```
+
+### 🚨 Risk Detection
+
+Enable risk detection in config:
+
+```php
+'risk' => [
+    'enabled' => true,
+    'max_sessions_per_hour' => 10,
+    'max_denied_attempts_per_hour' => 5,
+    'max_blocked_abilities_per_hour' => 3,
+    'score_threshold' => 1,
+],
+```
+
+Risk detections are logged with:
+
+```text
+action = risk_detected
+risk_score
+risk_flags
+```
+
 
 ## 📚 Documentation
 
@@ -421,6 +655,7 @@ Full documentation is available in the [docs](docs/README.md) directory:
 - [Permissions](docs/permissions.md)
 - [Routes](docs/routes.md)
 - [Middleware](docs/middleware.md)
+- [Advanced Features](docs/advanced-features.md)
 - [Audit Logs](docs/audit-logs.md)
 - [Views and Blade](docs/views-and-blade.md)
 - [Events](docs/events.md)
@@ -450,12 +685,10 @@ Only allow highly trusted users to masquerade. Always require authorization befo
 
 Masquerade regenerates the session ID when starting and stopping by default. Keep that enabled unless your application has a specific reason to disable it.
 
-Security vulnerabilities should be reported privately according to [SECURITY.md](SECURITY.md).
-
 ## 🤝 Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
 ## 📄 License
 
-Laravel Masquerade is open-source software licensed under the [MIT License](LICENSE).
+Laravel Masquerade is open-source software licensed under the [MIT License](LICENSE.md).

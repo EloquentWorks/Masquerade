@@ -688,6 +688,10 @@ Masquerade regenerates the session ID when starting and stopping by default. Kee
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
+## 🙏 Credits
+
+Built by Eloquent Works.
+
 ## 📄 License
 
 Laravel Masquerade is open-source software licensed under the [MIT License](LICENSE.md).

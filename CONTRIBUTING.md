@@ -189,8 +189,6 @@ Because stable versions may already be installed in user applications:
 - Provide a complete `down()` method
 - Use configurable package table names
 - Test migration and rollback behavior
-- Document upgrade steps in `UPGRADING.md`
-- Mention schema changes in `CHANGELOG.md`
 
 Consider SQLite, MySQL, and PostgreSQL differences.
 

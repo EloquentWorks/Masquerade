@@ -135,12 +135,6 @@ Tests should cover:
 - Relevant database behavior
 - Backward-compatibility expectations
 
-Run a focused test:
-
-```bash
-vendor/bin/phpunit --filter CombinedBanBehaviorTest
-```
-
 Run the full suite before opening a pull request:
 
 ```bash

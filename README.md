@@ -2,7 +2,7 @@
 
 [![Tests](https://github.com/EloquentWorks/Masquerade/actions/workflows/tests.yml/badge.svg)](https://github.com/EloquentWorks/Masquerade/actions/workflows/tests.yml)
 [![Latest Release](https://img.shields.io/github/v/release/EloquentWorks/Masquerade)](https://github.com/EloquentWorks/Masquerade/releases)
-[![License](https://img.shields.io/github/license/EloquentWorks/Masquerade)](LICENSE.md)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 A feature-rich user impersonation package for Laravel.
 

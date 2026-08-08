@@ -4,9 +4,6 @@ namespace EloquentWorks\Masquerade\Events;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 
-/**
- * Event fired when masquerade metadata is updated.
- */
 final class MasqueradeMetadataUpdated
 {
     /**

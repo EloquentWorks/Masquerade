@@ -5,9 +5,6 @@ namespace EloquentWorks\Masquerade\Data;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Auth\Authenticatable;
 
-/**
- * Data Transfer Object (DTO) representing a masquerade session.
- */
 final readonly class MasqueradeSession
 {
     /**
@@ -41,6 +38,7 @@ final readonly class MasqueradeSession
      */
     public function toArray(): array
     {
+        // Convert the session DTO into a safe array for views, JSON, and logs.
         return [
             'active' => $this->active,
             'uuid' => $this->uuid,

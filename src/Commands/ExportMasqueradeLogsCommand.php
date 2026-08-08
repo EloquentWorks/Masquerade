@@ -7,9 +7,6 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use RuntimeException;
 
-/**
- * Command to export masquerade audit logs to CSV or JSON.
- */
 final class ExportMasqueradeLogsCommand extends Command
 {
     /**
@@ -143,6 +140,7 @@ final class ExportMasqueradeLogsCommand extends Command
         // Provide feedback to the user about the export operation
         $this->components->success('Exported '.count($rows)." masquerade log(s) to {$path}.");
 
+        // Return a success status code
         return self::SUCCESS;
     }
 }

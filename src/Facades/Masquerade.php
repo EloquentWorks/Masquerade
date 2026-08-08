@@ -11,8 +11,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * Facade for the MasqueradeManager, providing a static interface to manage masquerade sessions.
- *
  * @method static void start(Authenticatable $target, ?Authenticatable $impersonator = null, ?string $guard = null, ?string $reason = null, array<string, mixed> $metadata = [], ?string $category = null)
  * @method static void stop(?string $guard = null, bool $expired = false, ?string $endedReason = null)
  * @method static CarbonImmutable extend(int $minutes, ?string $reason = null)
@@ -53,6 +51,7 @@ final class Masquerade extends Facade
 {
     protected static function getFacadeAccessor(): string
     {
+        // Get the Facade accessor for the MasqueradeManager service.
         return 'masquerade';
     }
 }

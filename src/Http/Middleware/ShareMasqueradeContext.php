@@ -7,9 +7,6 @@ use EloquentWorks\Masquerade\MasqueradeManager;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * Middleware to share masquerade context with the request.
- */
 final class ShareMasqueradeContext
 {
     /**
@@ -20,6 +17,8 @@ final class ShareMasqueradeContext
     public function __construct(private readonly MasqueradeManager $masquerade) {}
 
     /**
+     * Handle an incoming request.
+     *
      * @param  Closure(Request): Response  $next
      */
     public function handle(Request $request, Closure $next): Response
@@ -29,6 +28,7 @@ final class ShareMasqueradeContext
         $request->attributes->set('masquerade.context', $this->masquerade->context());
         $request->attributes->set('masquerade.session', $this->masquerade->session());
 
+        // Share masquerade context with the view
         return $next($request);
     }
 }

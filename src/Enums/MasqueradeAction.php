@@ -2,9 +2,6 @@
 
 namespace EloquentWorks\Masquerade\Enums;
 
-/**
- * Enum representing the different actions that can occur during a masquerade session.
- */
 enum MasqueradeAction: string
 {
     case Started = 'started';

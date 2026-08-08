@@ -2,9 +2,6 @@
 
 namespace EloquentWorks\Masquerade\Exceptions;
 
-/**
- * Exception thrown when a masquerade action cannot be performed.
- */
 final class CannotMasqueradeException extends MasqueradeException
 {
     /**

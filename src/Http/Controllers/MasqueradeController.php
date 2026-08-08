@@ -9,13 +9,12 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 
-/**
- * Controller for handling masquerade actions.
- */
 final class MasqueradeController extends Controller
 {
     /**
      * Start masquerading as a specified user.
+     *
+     * @param  string|int  $user  The ID of the user to masquerade as
      */
     public function start(Request $request, string|int $user): RedirectResponse
     {
@@ -104,6 +103,7 @@ final class MasqueradeController extends Controller
             return $redirectTo;
         }
 
+        // If the host is not allowed, return the default URL
         return $default;
     }
 }

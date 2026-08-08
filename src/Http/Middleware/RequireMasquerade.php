@@ -7,9 +7,6 @@ use EloquentWorks\Masquerade\MasqueradeManager;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * Middleware to require a masquerade session.
- */
 final class RequireMasquerade
 {
     /**
@@ -20,6 +17,8 @@ final class RequireMasquerade
     public function __construct(private readonly MasqueradeManager $masquerade) {}
 
     /**
+     * Handle an incoming request.
+     *
      * @param  Closure(Request): Response  $next
      */
     public function handle(Request $request, Closure $next): Response
@@ -29,6 +28,7 @@ final class RequireMasquerade
             abort(403, 'A masquerade session is required for this route.');
         }
 
+        // If the user is masquerading, allow the request to proceed
         return $next($request);
     }
 }

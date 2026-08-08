@@ -5,9 +5,6 @@ namespace EloquentWorks\Masquerade\Events;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Auth\Authenticatable;
 
-/**
- * Event fired when a masquerade session is extended.
- */
 final class MasqueradeExtended
 {
     /**

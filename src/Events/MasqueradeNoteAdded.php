@@ -5,9 +5,6 @@ namespace EloquentWorks\Masquerade\Events;
 use EloquentWorks\Masquerade\Models\MasqueradeNote;
 use Illuminate\Contracts\Auth\Authenticatable;
 
-/**
- * Event fired when a masquerade note is added.
- */
 final class MasqueradeNoteAdded
 {
     /**

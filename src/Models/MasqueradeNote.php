@@ -8,8 +8,6 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Carbon;
 
 /**
- * Represents a note associated with a masquerade impersonation session.
- *
  * @property int $id
  * @property string $masquerade_uuid
  * @property string $note
@@ -42,6 +40,7 @@ class MasqueradeNote extends Model
      */
     public function getTable(): string
     {
+        // Return the table name from the configuration, defaulting to 'masquerade_notes' if not set.
         return (string) config('masquerade.notes.table_name', 'masquerade_notes');
     }
 
@@ -52,6 +51,7 @@ class MasqueradeNote extends Model
      */
     public function author(): MorphTo
     {
+        // Get the author of the note.
         return $this->morphTo('author');
     }
 
@@ -63,6 +63,7 @@ class MasqueradeNote extends Model
      */
     public function scopeForMasqueradeUuid(Builder $query, string $uuid): Builder
     {
+        // Scope a query to only include notes for a given masquerade UUID.
         return $query->where('masquerade_uuid', $uuid);
     }
 }

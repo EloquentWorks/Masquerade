@@ -4,9 +4,6 @@ namespace EloquentWorks\Masquerade\Commands;
 
 use Illuminate\Console\Command;
 
-/**
- * Command to install Laravel Masquerade.
- */
 final class InstallCommand extends Command
 {
     /**
@@ -52,6 +49,7 @@ final class InstallCommand extends Command
         $this->components->success('Laravel Masquerade installed successfully.');
         $this->components->info('Next: run php artisan migrate and add the HasMasquerade trait to your User model.');
 
+        // Return success status
         return self::SUCCESS;
     }
 }

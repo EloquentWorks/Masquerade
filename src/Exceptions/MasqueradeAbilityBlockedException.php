@@ -2,9 +2,6 @@
 
 namespace EloquentWorks\Masquerade\Exceptions;
 
-/**
- * Exception thrown when a specific ability is blocked while masquerading.
- */
 final class MasqueradeAbilityBlockedException extends MasqueradeException
 {
     /**

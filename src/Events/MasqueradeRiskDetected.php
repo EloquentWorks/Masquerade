@@ -4,9 +4,6 @@ namespace EloquentWorks\Masquerade\Events;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 
-/**
- * Event fired when a masquerade risk is detected.
- */
 final class MasqueradeRiskDetected
 {
     /**

@@ -77,8 +77,10 @@ final class PruneMasqueradeLogsCommand extends Command
             return self::SUCCESS;
         }
 
+        // Inform the user of the number of logs deleted
         $this->components->success("Pruned {$deleted} masquerade log(s).");
 
+        // Return success status
         return self::SUCCESS;
     }
 }

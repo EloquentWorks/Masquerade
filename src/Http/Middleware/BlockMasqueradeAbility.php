@@ -8,9 +8,6 @@ use EloquentWorks\Masquerade\MasqueradeManager;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * Middleware to block access to certain abilities while masquerading.
- */
 final class BlockMasqueradeAbility
 {
     /**
@@ -23,6 +20,8 @@ final class BlockMasqueradeAbility
     ) {}
 
     /**
+     * Handle an incoming request.
+     *
      * @param  Closure(Request): Response  $next
      */
     public function handle(Request $request, Closure $next, string $ability): Response
@@ -43,6 +42,7 @@ final class BlockMasqueradeAbility
             abort(403, MasqueradeAbilityBlockedException::forAbility($ability)->getMessage());
         }
 
+        // If the ability is not blocked, continue processing the request
         return $next($request);
     }
 }

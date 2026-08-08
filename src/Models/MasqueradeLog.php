@@ -10,8 +10,6 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Carbon;
 
 /**
- * Represents a log entry for a masquerade impersonation session.
- *
  * @property int $id
  * @property string $masquerade_uuid
  * @property string $action
@@ -63,6 +61,7 @@ class MasqueradeLog extends Model
      */
     public function getTable(): string
     {
+        // Return the table name from the configuration, defaulting to 'masquerade_logs' if not set.
         return (string) config('masquerade.logging.table_name', 'masquerade_logs');
     }
 
@@ -73,6 +72,7 @@ class MasqueradeLog extends Model
      */
     public function impersonator(): MorphTo
     {
+        // Return a polymorphic relationship to the impersonator (the user who started the masquerade session).
         return $this->morphTo('impersonator');
     }
 
@@ -83,6 +83,7 @@ class MasqueradeLog extends Model
      */
     public function target(): MorphTo
     {
+        // Return a polymorphic relationship to the target (the user who was impersonated).
         return $this->morphTo('target');
     }
 
@@ -94,6 +95,7 @@ class MasqueradeLog extends Model
      */
     public function scopeForAction(Builder $query, MasqueradeAction|string $action): Builder
     {
+        // Determine the action value based on whether it's an instance of MasqueradeAction or a string.
         return $query->where('action', $action instanceof MasqueradeAction ? $action->value : $action);
     }
 
@@ -105,6 +107,8 @@ class MasqueradeLog extends Model
      */
     public function scopeStarted(Builder $query): Builder
     {
+        // Scope logs for the "Started" action by calling the scopeForAction
+        // method with the MasqueradeAction::Started enum value.
         return $this->scopeForAction($query, MasqueradeAction::Started);
     }
 
@@ -116,6 +120,8 @@ class MasqueradeLog extends Model
      */
     public function scopeEnded(Builder $query): Builder
     {
+        // Scope logs for the "Ended" action by calling the scopeForAction
+        // method with the MasqueradeAction::Ended enum value.
         return $this->scopeForAction($query, MasqueradeAction::Ended);
     }
 
@@ -127,6 +133,8 @@ class MasqueradeLog extends Model
      */
     public function scopeDenied(Builder $query): Builder
     {
+        // Scope logs for the "Denied" action by calling the scopeForAction
+        // method with the MasqueradeAction::Denied enum value.
         return $this->scopeForAction($query, MasqueradeAction::Denied);
     }
 
@@ -138,6 +146,8 @@ class MasqueradeLog extends Model
      */
     public function scopeExpired(Builder $query): Builder
     {
+        // Scope logs for the "Expired" action by calling the scopeForAction
+        // method with the MasqueradeAction::Expired enum value.
         return $this->scopeForAction($query, MasqueradeAction::Expired);
     }
 
@@ -149,6 +159,8 @@ class MasqueradeLog extends Model
      */
     public function scopeExtended(Builder $query): Builder
     {
+        // Scope logs for the "Extended" action by calling the scopeForAction
+        // method with the MasqueradeAction::Extended enum value.
         return $this->scopeForAction($query, MasqueradeAction::Extended);
     }
 
@@ -160,6 +172,8 @@ class MasqueradeLog extends Model
      */
     public function scopeNotes(Builder $query): Builder
     {
+        // Scope logs for the "NoteAdded" action by calling the scopeForAction
+        // method with the MasqueradeAction::NoteAdded enum value.
         return $this->scopeForAction($query, MasqueradeAction::NoteAdded);
     }
 
@@ -171,6 +185,8 @@ class MasqueradeLog extends Model
      */
     public function scopeAbilityBlocked(Builder $query): Builder
     {
+        // Scope logs for the "AbilityBlocked" action by calling the scopeForAction
+        // method with the MasqueradeAction::AbilityBlocked enum value.
         return $this->scopeForAction($query, MasqueradeAction::AbilityBlocked);
     }
 
@@ -182,6 +198,8 @@ class MasqueradeLog extends Model
      */
     public function scopeRiskDetected(Builder $query): Builder
     {
+        // Scope logs for the "RiskDetected" action by calling the scopeForAction
+        // method with the MasqueradeAction::RiskDetected enum value.
         return $this->scopeForAction($query, MasqueradeAction::RiskDetected);
     }
 
@@ -193,6 +211,7 @@ class MasqueradeLog extends Model
      */
     public function scopeForMasqueradeUuid(Builder $query, string $uuid): Builder
     {
+        // Scope logs by masquerade UUID by adding a where condition on the 'masquerade_uuid' column.
         return $query->where('masquerade_uuid', $uuid);
     }
 
@@ -204,6 +223,7 @@ class MasqueradeLog extends Model
      */
     public function scopeForUuid(Builder $query, string $uuid): Builder
     {
+        // Alias for scopeForMasqueradeUuid() to provide a more concise method name for filtering logs by masquerade UUID.
         return $this->scopeForMasqueradeUuid($query, $uuid);
     }
 
@@ -215,6 +235,7 @@ class MasqueradeLog extends Model
      */
     public function scopeForImpersonator(Builder $query, Authenticatable $impersonator): Builder
     {
+        // Scope logs by impersonator by adding where conditions on the 'impersonator_type' and 'impersonator_id' columns.
         return $query
             ->where('impersonator_type', $this->morphTypeFor($impersonator))
             ->where('impersonator_id', $impersonator->getAuthIdentifier());
@@ -228,6 +249,7 @@ class MasqueradeLog extends Model
      */
     public function scopeForTarget(Builder $query, Authenticatable $target): Builder
     {
+        // Scope logs by target by adding where conditions on the 'target_type' and 'target_id' columns.
         return $query
             ->where('target_type', $this->morphTypeFor($target))
             ->where('target_id', $target->getAuthIdentifier());
@@ -241,6 +263,7 @@ class MasqueradeLog extends Model
      */
     public function scopeForCategory(Builder $query, string $category): Builder
     {
+        // Scope logs by category by adding a where condition on the 'category' column.
         return $query->where('category', $category);
     }
 
@@ -252,6 +275,7 @@ class MasqueradeLog extends Model
      */
     public function scopeForAbility(Builder $query, string $ability): Builder
     {
+        // Scope logs by blocked ability by adding a where condition on the 'ability' column.
         return $query->where('ability', $ability);
     }
 
@@ -263,6 +287,8 @@ class MasqueradeLog extends Model
      */
     public function scopeHighRisk(Builder $query, int $minimumScore = 50): Builder
     {
+        // Scope high risk logs by adding a where condition on the 'risk_score' column
+        // to filter logs with a score greater than or equal to the specified minimum score.
         return $query->where('risk_score', '>=', $minimumScore);
     }
 
@@ -271,6 +297,7 @@ class MasqueradeLog extends Model
      */
     public function isAction(MasqueradeAction|string $action): bool
     {
+        // Determine if the log was written for the given action by comparing the log's action
         return $this->action === ($action instanceof MasqueradeAction ? $action->value : $action);
     }
 
@@ -281,6 +308,7 @@ class MasqueradeLog extends Model
      */
     public function durationInSeconds(): ?int
     {
+        // If either started_at or ended_at is not an instance of Carbon, return null.
         if (! $this->started_at instanceof Carbon || ! $this->ended_at instanceof Carbon) {
             return null;
         }
@@ -296,6 +324,7 @@ class MasqueradeLog extends Model
      */
     public function toExportArray(): array
     {
+        // Convert this log into an exportable flat array, suitable for CSV or JSON export.
         return [
             'id' => $this->id,
             'masquerade_uuid' => $this->masquerade_uuid,
@@ -332,6 +361,7 @@ class MasqueradeLog extends Model
             return $model->getMorphClass();
         }
 
+        // If the model is not an instance of Eloquent's Model class, return its class name as the morph type.
         return $model::class;
     }
 }

@@ -7,9 +7,6 @@ use EloquentWorks\Masquerade\MasqueradeManager;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * Middleware to enforce masquerade duration.
- */
 final class EnforceMasqueradeDuration
 {
     /**
@@ -20,6 +17,8 @@ final class EnforceMasqueradeDuration
     public function __construct(private readonly MasqueradeManager $masquerade) {}
 
     /**
+     * Handle an incoming request.
+     *
      * @param  Closure(Request): Response  $next
      */
     public function handle(Request $request, Closure $next): Response
@@ -40,6 +39,7 @@ final class EnforceMasqueradeDuration
                 ->with('status', config('masquerade.messages.expired'));
         }
 
+        // If the masquerade session is still valid, continue processing the request
         return $next($request);
     }
 }

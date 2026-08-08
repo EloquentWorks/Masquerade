@@ -2,9 +2,6 @@
 
 namespace EloquentWorks\Masquerade\Exceptions;
 
-/**
- * Exception thrown when a masquerade session has expired.
- */
 final class MasqueradeExpiredException extends MasqueradeException
 {
     /**

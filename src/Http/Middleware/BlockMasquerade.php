@@ -7,9 +7,6 @@ use EloquentWorks\Masquerade\MasqueradeManager;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * Middleware to block access to certain routes while masquerading.
- */
 final class BlockMasquerade
 {
     /**
@@ -20,6 +17,8 @@ final class BlockMasquerade
     public function __construct(private readonly MasqueradeManager $masquerade) {}
 
     /**
+     * Handle an incoming request.
+     *
      * @param  Closure(Request): Response  $next
      */
     public function handle(Request $request, Closure $next): Response
@@ -29,6 +28,7 @@ final class BlockMasquerade
             abort(403, (string) config('masquerade.messages.blocked', 'This action is blocked while masquerading.'));
         }
 
+        // If not masquerading, continue processing the request
         return $next($request);
     }
 }

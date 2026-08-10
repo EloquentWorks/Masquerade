@@ -1,6 +1,6 @@
-# 🤝 Contributing to Laravel Masquerade
+# 🤝 Contributing
 
-Thank you for considering a contribution to Laravel Masquerade! Contributions of all sizes are appreciated, including bug reports, documentation improvements, additional tests, security hardening, and carefully designed features.
+Thank you for considering a contribution! Contributions of all sizes are welcome, including bug reports, documentation improvements, additional tests, security hardening, refactoring, and carefully designed features.
 
 Please read the [Code of Conduct](CODE_OF_CONDUCT.md) before participating.
 
@@ -15,30 +15,32 @@ You can help by:
 - Improving static-analysis coverage
 - Fixing defects
 - Reviewing open pull requests
-- Helping verify Laravel and PHP compatibility
+- Helping verify Laravel, PHP, and database compatibility
 
 ## 🚨 Security Vulnerabilities
 
-Do not report security vulnerabilities through public GitHub issues.
+Do not report security vulnerabilities through public GitHub issues, discussions, or pull requests.
 
-Follow the private reporting process in [SECURITY.md](SECURITY.md).
+Please follow the private reporting process described in [SECURITY.md](SECURITY.md).
 
 ## 🐛 Reporting Bugs
 
 Before opening a bug report:
 
 1. Confirm the issue occurs on a currently supported version.
-2. Search existing issues and pull requests.
+2. Search existing issues and pull requests for duplicates.
 3. Reduce the problem to the smallest reproducible example.
-4. Run the package's quality suite when possible.
+4. Run the project's quality suite when possible.
 
-Include:
+Include, when relevant:
 
-- Laravel Masquerade version
+- Package or project version
 - Laravel version
 - PHP version
 - Database driver and version
-- Queue driver, when notifications are involved
+- Cache driver
+- Queue driver
+- Session driver
 - Relevant configuration
 - Steps to reproduce
 - Expected behavior
@@ -46,27 +48,31 @@ Include:
 - Exception message and stack trace
 - A minimal reproduction or failing test
 
+Remove secrets, credentials, access tokens, private data, real IP addresses, API keys, and other sensitive information before posting.
+
 ## 💡 Suggesting Features
 
 Feature proposals should explain:
 
 - The problem being solved
-- Why the feature belongs in the core package
+- Why the feature belongs in the project
 - The proposed public API
-- Expected configuration or migrations
+- Expected configuration changes
+- Expected migrations or schema changes
 - Security and privacy considerations
+- Performance considerations
 - Backward-compatibility impact
 - Alternatives considered
 
-Large features should be discussed in an issue before implementation.
+Large or potentially breaking features should be discussed in an issue before implementation.
 
 ## 🛠️ Development Setup
 
 Fork and clone the repository:
 
 ```bash
-git clone https://github.com/<your-username>/Masquerade.git
-cd Masquerade
+git clone https://github.com/<your-username>/<repository>.git
+cd <repository>
 ```
 
 Install dependencies:
@@ -75,13 +81,13 @@ Install dependencies:
 composer install
 ```
 
-Run the complete quality suite:
+If the repository provides a complete quality script, run:
 
 ```bash
 composer quality
 ```
 
-Or run each tool separately:
+Common individual commands include:
 
 ```bash
 composer format
@@ -89,11 +95,13 @@ composer analyse
 composer test
 ```
 
-Check formatting without changing files:
+To check formatting without modifying files, a repository may provide:
 
 ```bash
 composer format:test
 ```
+
+Always check `composer.json` for the exact scripts supported by the project.
 
 ## 🌿 Branches
 
@@ -120,18 +128,29 @@ Keep each branch limited to one clear purpose.
 
 ## 🧪 Tests
 
-Every behavioral change should include PHPUnit coverage.
+Behavioral changes should include automated test coverage.
 
-Tests should cover:
+Tests should consider, when relevant:
 
 - The successful path
 - Invalid input
-- Authorization or security boundaries
-- Temporary and permanent enforcement
-- Transaction rollback where applicable
+- Validation failures
+- Authorization boundaries
+- Authentication boundaries
+- Security-sensitive behavior
 - Configuration variants
-- Relevant database behavior
+- Database behavior
+- Transactions and rollback
+- Queued behavior
+- Events and notifications
+- Concurrency-sensitive behavior
 - Backward-compatibility expectations
+
+Run a focused test when useful:
+
+```bash
+vendor/bin/phpunit --filter ExampleTest
+```
 
 Run the full suite before opening a pull request:
 
@@ -139,11 +158,11 @@ Run the full suite before opening a pull request:
 composer test
 ```
 
-Do not delete or weaken an existing test merely to make a change pass.
+Do not delete, disable, or weaken an existing test merely to make a change pass.
 
 ## ✅ Static Analysis
 
-Run PHPStan:
+If the project uses PHPStan or Larastan, run:
 
 ```bash
 composer analyse
@@ -151,19 +170,19 @@ composer analyse
 
 Prefer accurate native types and useful PHPDoc over broad suppressions.
 
-For Eloquent relationships, preserve Larastan generics such as:
+For Eloquent relationships, preserve appropriate Larastan generic annotations where the project uses them, for example:
 
 ```php
-/** @return MorphMany<Masquerade, $this> */
+/** @return MorphMany<RelatedModel, $this> */
 ```
 
-Avoid adding ignore rules unless the reported problem cannot be represented correctly in PHP or PHPDoc.
+Avoid adding ignore rules unless the reported issue cannot be represented correctly through PHP types or PHPDoc.
 
 ## 🎨 Code Style
 
-Laravel Masquerade follows Laravel-style conventions and uses Laravel Pint.
+Projects should follow Laravel-style conventions and use Laravel Pint when configured.
 
-Format the code:
+Format code with:
 
 ```bash
 composer format
@@ -171,56 +190,115 @@ composer format
 
 General expectations:
 
-- Use strict, descriptive method and variable names
+- Use descriptive class, method, and variable names
 - Prefer small, focused methods
-- Use named arguments when they improve readability
+- Prefer early returns when they improve readability
+- Use named arguments when they improve clarity
 - Keep public APIs consistent
-- Avoid comments that only repeat the code
+- Follow existing project architecture
+- Avoid unnecessary abstractions
+- Avoid comments that merely repeat the code
 - Document security assumptions and surprising behavior
-- Preserve backward compatibility unless a major release is planned
+- Preserve backward compatibility unless a breaking release is planned
+- Keep formatting compatible with Laravel Pint
+
+## 🧱 Architecture
+
+Before introducing a new abstraction, review the existing project structure.
+
+Prefer:
+
+- Focused actions or services for business operations
+- Form Requests for HTTP validation
+- API Resources for response transformation
+- Policies or gates for authorization
+- Events for meaningful domain changes
+- Jobs for work that belongs on a queue
+- Value objects or DTOs when they improve correctness
+- Configuration over hard-coded application assumptions
+
+Avoid moving application-specific policy into a reusable package unless the behavior is intentionally part of its public contract.
 
 ## 🗃️ Database Changes
 
-Because stable versions may already be installed in user applications:
+For published or stable releases:
 
-- Add a new migration instead of modifying a released migration
-- Provide a complete `down()` method
-- Use configurable package table names
+- Add a new migration instead of modifying a previously released migration
+- Provide a complete `down()` method where practical
+- Respect configurable package table names when supported
+- Add indexes intentionally
+- Avoid destructive schema changes without an upgrade path
 - Test migration and rollback behavior
+- Consider SQLite, MySQL/MariaDB, and PostgreSQL differences
 
-Consider SQLite, MySQL, and PostgreSQL differences.
+For reusable packages, avoid assumptions about the host application's user table, primary-key type, or authentication model unless explicitly documented.
 
 ## 🔐 Security-Sensitive Changes
 
-Changes involving identifiers, evidence, notifications, middleware, transactions, pruning, or escalation require additional care.
+Changes involving authentication, authorization, tokens, identifiers, secrets, middleware, cookies, sessions, uploads, webhooks, cryptography, transactions, pruning, impersonation, moderation, or destructive operations require additional care.
 
 Consider:
 
+- Authentication and authorization boundaries
+- CSRF protection
+- Rate limiting
 - Trusted proxy behavior
-- Hash-key stability
+- Secret and key stability
+- Constant-time comparisons where appropriate
 - Sensitive-data disclosure
-- Evidence authorization
+- Mass-assignment behavior
+- Injection risks
+- File-path and upload validation
 - Queue and after-commit behavior
 - Transaction boundaries
-- Concurrency and duplicate enforcement
+- Concurrency and duplicate operations
+- Replay and idempotency concerns
 - Retention and destructive operations
-- Constant-time comparisons where appropriate
+- Logging of secrets or personal data
+- Safe defaults
+
+Security-sensitive pull requests should explain the threat model or abuse case being addressed.
+
+## ⚡ Performance
+
+Avoid unnecessary queries, repeated network calls, unbounded collections, or work inside frequently executed middleware.
+
+When changing performance-sensitive code, consider:
+
+- Query count
+- Eager loading
+- Index usage
+- Cache behavior
+- Queue suitability
+- Batch operations
+- Memory usage
+- Large datasets
+- Repeated model events
+- N+1 queries
+
+Include benchmarks or query-count comparisons when they materially support the change.
 
 ## 📚 Documentation
 
-Update documentation when a change affects:
+Update documentation whenever a change affects:
 
 - Installation
+- Requirements
 - Configuration
+- Environment variables
 - Public methods
+- Models or relationships
 - Middleware
-- Events or notifications
-- Database schema
+- Routes
+- Events
+- Notifications
 - Commands
+- Database schema
 - Security guidance
 - Upgrade steps
+- Supported Laravel or PHP versions
 
-Keep examples aligned with the actual method signatures and configuration structure.
+Keep examples aligned with actual method signatures and configuration structure.
 
 Use relative links for repository documentation.
 
@@ -228,20 +306,30 @@ Use relative links for repository documentation.
 
 Write clear, focused commit messages.
 
-Avoid mixing unrelated formatting, refactoring, and behavioral changes in one commit.
+Examples:
+
+```text
+Fix token rotation after expiration
+Add PostgreSQL compatibility tests
+Document configurable table names
+```
+
+Avoid mixing unrelated formatting, refactoring, documentation, and behavioral changes in one commit.
 
 ## 🔀 Pull Requests
 
 Before opening a pull request, confirm:
 
 - [ ] The change has one clear purpose
-- [ ] PHPUnit tests pass
-- [ ] PHPStan passes
-- [ ] Pint passes
-- [ ] New behavior has tests
+- [ ] Tests pass
+- [ ] Static analysis passes, when configured
+- [ ] Pint or formatting checks pass, when configured
+- [ ] New behavior has appropriate tests
 - [ ] Documentation is updated
-- [ ] Database changes use new migrations
-- [ ] No secrets, debug files, or generated artifacts are committed
+- [ ] Database changes use safe migration practices
+- [ ] Backward compatibility has been considered
+- [ ] Security and privacy implications have been considered
+- [ ] No secrets, debug files, credentials, or generated artifacts are committed
 
 In the pull request description, explain:
 
@@ -250,6 +338,7 @@ In the pull request description, explain:
 - How it was tested
 - Any migration or upgrade requirements
 - Any backward-compatibility concerns
+- Any security or performance considerations
 
 ## 🧑‍⚖️ Review Process
 
@@ -257,16 +346,31 @@ Maintainers may request changes for:
 
 - API consistency
 - Missing tests
+- Architecture
 - Backward compatibility
 - Security or privacy concerns
 - Performance
 - Documentation
 - Scope
+- Long-term maintenance cost
 
-A pull request may be declined when the feature is too application-specific, duplicates Laravel functionality, or increases maintenance burden without sufficient benefit.
+A pull request may be declined when it is too application-specific, duplicates functionality already provided by Laravel or a project dependency, introduces unnecessary complexity, or increases maintenance burden without enough benefit.
+
+## 📦 Releases and Backward Compatibility
+
+Public APIs should remain backward compatible within the project's stated versioning policy.
+
+Breaking changes should:
+
+- Be intentional
+- Be documented clearly
+- Include upgrade guidance
+- Be released according to the project's versioning strategy
+
+Avoid silently changing configuration keys, method signatures, event payloads, database semantics, or other documented behavior.
 
 ## 📄 License
 
-By contributing, you agree that your contribution will be licensed under the repository's [MIT License](LICENSE).
+By contributing, you agree that your contribution will be licensed under the repository's [MIT License](LICENSE) or the license otherwise specified by the project.
 
-Thank you for helping make Laravel Masquerade safer, clearer, and more useful. 🛡️
+Thank you for helping make this project safer, clearer, and more useful. ❤️

@@ -157,7 +157,7 @@ Confirm that:
 - Transactions cover critical state changes
 - Security documentation is current
 
-If the release fixes a vulnerability, coordinate disclosure according to [SECURITY.md](../SECURITY.md).
+If the release fixes a vulnerability, coordinate disclosure according to [SECURITY.md](SECURITY.md).
 
 ## 📚 Documentation Review
 
